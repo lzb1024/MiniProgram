@@ -1,0 +1,221 @@
+<!--
+  pages/zhufugui/index.wxml — 朱富贵火锅消费计算
+
+  两个模式同页切换（mode: total | budget），顶部开关控制会员价。
+  navigationStyle: custom，所以自带返回条；顶部留白 = 状态栏 + 呼吸位。
+-->
+<view class="zf fg-theme">
+  <view class="zf__top" style="height:{{ statusTop }}px"></view>
+
+  <view class="zf__nav">
+    <view class="zf__back" bindtap="onBackNav" hover-class="is-hover">
+      <t-icon name="chevron-left" size="40rpx" color="#22302E" />
+    </view>
+  </view>
+
+  <view class="zf__head">
+    <view class="zf__kicker">
+      <view class="zf__dot"></view>
+      <text>常用工具</text>
+    </view>
+    <view class="zf__title">朱富贵计算</view>
+    <view class="zf__sub">按盘算账，锅底调料饮料不打折</view>
+  </view>
+
+  <!-- 模式切换 -->
+  <view class="seg">
+    <view class="seg__it {{ mode === 'total' ? 'is-on' : '' }}" data-mode="total" bindtap="onMode">算总价</view>
+    <view class="seg__it {{ mode === 'budget' ? 'is-on' : '' }}" data-mode="budget" bindtap="onMode">预算反推</view>
+  </view>
+
+  <!-- 会员价开关 -->
+  <view class="mcard">
+    <view class="mcard__main">
+      <view class="mcard__title">会员价 6.8 折</view>
+      <view class="mcard__desc">{{ member ? '菜金已按折后价计算，锅底调料饮料不打折' : '按菜牌原价计算，未打折' }}</view>
+    </view>
+    <switch checked="{{ member }}" color="#1E6B5A" bindchange="onMember" />
+  </view>
+
+  <!-- 共用：人数与锅底 -->
+  <view class="card">
+    <view class="card__title">人数与锅底</view>
+    <view class="grp">
+      <view class="grp__it">
+        <view class="grp__k">用餐人数</view>
+        <view class="grp__in-box">
+          <input class="grp__in" type="number" value="{{ people }}" bindinput="onPeople" />
+          <text class="grp__u">人</text>
+        </view>
+      </view>
+      <view class="grp__it">
+        <view class="grp__k">普通锅底 · 12/份</view>
+        <view class="grp__in-box">
+          <input class="grp__in" type="number" value="{{ potNormal }}" bindinput="onPotNormal" />
+          <text class="grp__u">份</text>
+        </view>
+      </view>
+      <view class="grp__it">
+        <view class="grp__k">清汤锅底 · 6/份</view>
+        <view class="grp__in-box">
+          <input class="grp__in" type="number" value="{{ potClear }}" bindinput="onPotClear" />
+          <text class="grp__u">份</text>
+        </view>
+      </view>
+    </view>
+    <view class="card__hint">调料纸巾按 4 元/人 自动计入</view>
+  </view>
+
+  <!-- ============ ① 算总价 ============ -->
+  <block wx:if="{{ mode === 'total' }}">
+    <view class="card">
+      <view class="card__title">盘子数量</view>
+      <view class="card__hint">单价随上方会员价开关变化</view>
+      <view class="prow" wx:for="{{ colors }}" wx:key="key">
+        <view class="prow__dot is-{{ item.tone }}"></view>
+        <view class="prow__main">
+          <view class="prow__name">{{ item.name }}</view>
+          <view class="prow__note">{{ item.note }}</view>
+        </view>
+        <view class="prow__unit">¥{{ colorUnits[index] }}</view>
+        <view class="stepper stepper--sm">
+          <view class="stepper__btn" data-key="{{ item.key }}" data-step="-1" bindtap="onPlateStep">−</view>
+          <input class="stepper__in" type="number" value="{{ plates[item.key] }}" data-key="{{ item.key }}" bindinput="onPlate" />
+          <view class="stepper__btn" data-key="{{ item.key }}" data-step="1" bindtap="onPlateStep">+</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">饮料酒水</view>
+      <view class="card__hint">不打折，按份数计入</view>
+      <view class="drow" wx:for="{{ drinks }}" wx:key="index">
+        <picker
+          class="drow__pick"
+          range="{{ drinkPickerRange }}"
+          value="{{ item.idx }}"
+          data-i="{{ index }}"
+          bindchange="onDrinkPick"
+        >
+          <view class="drow__sel {{ item.name ? '' : 'is-ph' }}">{{ item.name || '选择饮料' }}</view>
+        </picker>
+        <view class="stepper stepper--sm">
+          <view class="stepper__btn" data-i="{{ index }}" data-step="-1" bindtap="onDrinkQty">−</view>
+          <input class="stepper__in" type="number" value="{{ item.qty }}" disabled />
+          <view class="stepper__btn" data-i="{{ index }}" data-step="1" bindtap="onDrinkQty">+</view>
+        </view>
+        <view class="drow__del" data-i="{{ index }}" bindtap="onDelDrink" wx:if="{{ drinks.length > 1 }}">
+          <t-icon name="close" size="28rpx" color="#8C9A94" />
+        </view>
+      </view>
+      <view class="addbtn" bindtap="onAddDrink" hover-class="is-hover">
+        <t-icon name="add" size="30rpx" color="#1E6B5A" />
+        <text class="addbtn__t">添加饮料</text>
+      </view>
+    </view>
+
+    <!-- 结果 -->
+    <view class="card card--sum" wx:if="{{ total && !total.empty }}">
+      <view class="sum">
+        <view class="sum__k">应付合计</view>
+        <view class="sum__v">¥{{ total.total }}</view>
+        <view class="sum__per" wx:if="{{ total.perPerson > 0 }}">人均 ¥{{ total.perPerson }}</view>
+      </view>
+
+      <view class="bill">
+        <view class="bill__row" wx:if="{{ total.dishRaw > 0 }}">
+          <text class="bill__k">菜金{{ total.member ? '（折前）' : '' }}</text>
+          <text class="bill__v">¥{{ total.dishRaw }}</text>
+        </view>
+        <view class="bill__row is-save" wx:if="{{ total.member && total.saved > 0 }}">
+          <text class="bill__k">会员省下</text>
+          <text class="bill__v">−¥{{ total.saved }}</text>
+        </view>
+        <view class="bill__row">
+          <text class="bill__k">锅底 {{ total.potNormal }}{{ total.potClear ? ' + 清汤 ' + total.potClear : '' }} 份</text>
+          <text class="bill__v">¥{{ total.potSum }}</text>
+        </view>
+        <view class="bill__row">
+          <text class="bill__k">调料 {{ total.people }} 人</text>
+          <text class="bill__v">¥{{ total.sauceSum }}</text>
+        </view>
+        <view class="bill__row" wx:if="{{ total.drinkSum > 0 }}">
+          <text class="bill__k">饮料</text>
+          <text class="bill__v">¥{{ total.drinkSum }}</text>
+        </view>
+      </view>
+
+      <!-- 盘子明细 -->
+      <view class="detail" wx:if="{{ total.items.length }}">
+        <view class="detail__row" wx:for="{{ total.items }}" wx:key="key">
+          <text class="detail__k">{{ item.name }} ×{{ item.qty }}</text>
+          <text class="detail__v">¥{{ item.sum }}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty" wx:if="{{ !total || total.empty }}">填上人数、锅底和盘子数量，这里出账</view>
+
+    <view class="btn btn--ghost" bindtap="onResetTotal" hover-class="is-hover">清空重填</view>
+  </block>
+
+  <!-- ============ ② 预算反推 ============ -->
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">目标实付金额</view>
+      <view class="card__hint">锅底与调料先扣掉，剩下的钱用来配盘子</view>
+      <view class="field">
+        <view class="field__box">
+          <text class="field__unit is-pre">¥</text>
+          <input class="field__input" type="digit" value="{{ target }}" placeholder="例如 300" placeholder-class="field__ph" bindinput="onTarget" />
+        </view>
+      </view>
+      <view class="grp grp--two">
+        <view class="grp__it">
+          <view class="grp__k">容差（±元）</view>
+          <view class="grp__in-box">
+            <input class="grp__in" type="number" value="{{ tolerance }}" bindinput="onTolerance" />
+            <text class="grp__u">元</text>
+          </view>
+        </view>
+        <view class="grp__it">
+          <view class="grp__k">搭配偏好</view>
+          <picker range="{{ preferOptions }}" range-key="label" value="0" bindchange="onPrefer">
+            <view class="grp__pick">
+              <block wx:for="{{ preferOptions }}" wx:key="key"><text wx:if="{{ item.key === prefer }}">{{ item.label }}</text></block>
+            </view>
+          </picker>
+        </view>
+      </view>
+      <view class="card__hint">固定费用：锅底 + 调料共 ¥{{ (potNormal * 12 + potClear * 6 + people * 4) }}</view>
+    </view>
+
+    <view class="btn btn--main" bindtap="onSuggest" hover-class="is-hover">算合理组合</view>
+
+    <block wx:if="{{ suggest }}">
+      <view class="combo" wx:for="{{ suggest.rows }}" wx:key="index">
+        <view class="combo__head">
+          <view class="combo__total">¥{{ item.total }}</view>
+          <view class="combo__tag {{ item.diff === 0 ? 'is-hit' : '' }}">
+            {{ item.diff === 0 ? '正中目标' : '差 ¥' + item.diff }}
+          </view>
+        </view>
+        <view class="combo__plates">
+          <view class="cpill is-{{ c.tone }}" wx:for="{{ item.byColor }}" wx:for-item="c" wx:key="key">
+            <text class="cpill__n">{{ c.name }}</text>
+            <text class="cpill__q">×{{ c.qty }}</text>
+          </view>
+        </view>
+        <view class="combo__foot">
+          <text class="combo__sum">共 {{ item.totalPlates }} 盘，菜金 ¥{{ item.sum }}</text>
+          <view class="combo__use" data-i="{{ index }}" bindtap="onUseCombo">填入左侧</view>
+        </view>
+      </view>
+
+      <view class="tip" wx:if="{{ suggest.strictDropped }}">这个预算下没有严格满足偏好的搭配，已放宽</view>
+      <view class="hintline">每色至少 1 盘；最贵色不超过最便宜色的 3 倍，避免全是贵盘</view>
+    </block>
+  </block>
+
+  <view class="zf__bottom"></view>
+</view>

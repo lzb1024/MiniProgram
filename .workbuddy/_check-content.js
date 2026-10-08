@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const ROOT = 'D:/LZB/LIN';
+const ROOT = path.resolve(__dirname, '..');
 const MOCK = path.join(ROOT, 'mock/home/getTrip.js');
 const src = fs.readFileSync(MOCK, 'utf8').replace(/export\s+default\s+/, 'module.exports = ');
 const tmp = path.join(ROOT, '.workbuddy/_trip.check.cjs');

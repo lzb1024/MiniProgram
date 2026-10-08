@@ -1,0 +1,99 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>常用工具页 · 预览 · 综合版小程序</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#E9E6DC;padding:32px;font:14px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#22302E}
+h1{font-size:20px;font-weight:600;margin-bottom:6px;font-family:"Songti SC","Noto Serif SC",serif}
+.cap-top{font-size:12px;color:#5A6B66;margin-bottom:22px}
+.row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.col{flex:none;width:414px}
+.cap{font:600 13px/1 sans-serif;color:#5A6B66;margin:0 0 10px 2px}
+.phone{background:#F7F5EF;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(34,48,46,.14);padding-top:44px;min-height:600px;display:flex;flex-direction:column}
+.tools{background:#F7F5EF;padding:0 16px;flex:1}
+.tools__head{padding:4px 0 12px}
+.tools__kicker{display:flex;align-items:center;font-size:14px;color:#5A6B66;letter-spacing:.5px}
+.tools__dot{width:5px;height:5px;border-radius:50%;background:#1E6B5A;margin-right:6px;flex:none}
+.tools__title{margin-top:5px;font-size:26px;line-height:1.2;color:#22302E;font-family:"Songti SC","Noto Serif SC",serif;font-weight:600}
+.tools__sub{margin-top:4px;font-size:12px;color:#8C9A94}
+.tgroup{background:#FFF;border:1px solid #E4E1D5;border-radius:14px;box-shadow:0 1px 4px rgba(34,48,46,.05),0 4px 16px rgba(34,48,46,.04);overflow:hidden}
+.tgroup__body{padding:4px 16px}
+.trow{display:flex;align-items:center;gap:10px;padding:15px 0}
+.trow:active{opacity:.6}
+.trow__icon{flex:none;width:36px;height:36px;border-radius:10px;background:#E3EFE9;display:flex;align-items:center;justify-content:center}
+.trow__main{flex:1;min-width:0}
+.trow__title{font-size:17px;color:#22302E;font-family:"Songti SC",serif;font-weight:600}
+.trow__desc{margin-top:3px;font-size:12px;color:#8C9A94}
+.trow__go{flex:none;display:flex;align-items:center}
+.trow__go-t{font-size:12px;color:#1E6B5A}
+.trow__arrow{width:0;height:0;margin-left:5px;border-top:3.5px solid transparent;border-bottom:3.5px solid transparent;border-left:5.5px solid #8C9A94}
+.tools__foot{margin-top:28px;padding:14px 0 4px;border-top:1px solid #EEECE2}
+.tools__foot-p{font-size:12px;line-height:1.7;color:#8C9A94}
+.tools__bottom{height:20px}
+.tabbar{flex:none;display:flex;background:#FFF;border-top:1px solid #E4E1D5;padding:8px 0 14px}
+.tabbar__it{flex:1;text-align:center;font-size:11px;color:#8C9A94}
+.tabbar__it.is-on{color:#1E6B5A}
+.tabbar__dot{width:22px;height:22px;margin:0 auto 3px;border-radius:6px;background:#E3EFE9;display:flex;align-items:center;justify-content:center;font-size:12px}
+.tabbar__it.is-on .tabbar__dot{background:#1E6B5A;color:#fff}
+.note{max-width:414px;margin:16px auto 0;font-size:12px;line-height:1.75;color:#5A6B66;background:#FFF;border:1px solid #E4E1D5;border-radius:12px;padding:14px 16px}
+.note b{color:#22302E}
+.note code{background:#FBFAF6;padding:1px 5px;border-radius:4px;font-size:11px}
+.del{color:#8C9A94}
+</style></head><body>
+<h1>常用工具页 · 只剩下麻将</h1>
+<p class="cap-top">pages/tools · 由 <code>pages/tools/index.*</code> 的样式与结构还原</p>
+
+<div class="row">
+  <div class="col">
+    <p class="cap">pages/tools · 常用工具（tab2）</p>
+    <div class="phone"><div class="tools">
+      <div class="tools__head">
+        <div class="tools__kicker"><div class="tools__dot"></div><span>实用小工具</span></div>
+        <div class="tools__title">常用工具</div>
+        <div class="tools__sub">和行程无关的零碎需求，都收在这里</div>
+      </div>
+
+      <div class="tgroup">
+        <div class="tgroup__body">
+          <div class="trow">
+            <div class="trow__icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5A6B66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h4a2 2 0 0 1 2 2v7a1.6 1.6 0 0 1-3.2 0V15H7.2v3a1.6 1.6 0 0 1-3.2 0v-4H3a1 1 0 0 1-1-1v-2a2 2 0 0 1 2-2z"/><path d="M13 12h1.5a2.5 2.5 0 0 1 2.5 2.5V18a1.5 1.5 0 0 0 3 0V13"/><circle cx="8" cy="6" r="2.4"/><circle cx="14" cy="6" r="2.4"/></svg>
+            </div>
+            <div class="trow__main">
+              <div class="trow__title">麻将记分</div>
+              <div class="trow__desc">开局定底分，收局算盈亏与谁付谁</div>
+            </div>
+            <div class="trow__go"><span class="trow__go-t"></span><div class="trow__arrow"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tools__foot">
+        <span class="tools__foot-p">目前只放了麻将记分，需要别的再往这里加</span>
+      </div>
+      <div class="tools__bottom"></div>
+    </div>
+    <div class="tabbar">
+      <div class="tabbar__it"><div class="tabbar__dot">◈</div>旅行攻略</div>
+      <div class="tabbar__it is-on"><div class="tabbar__dot">⌘</div>常用工具</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <p class="cap">本次改动</p>
+    <div class="note">
+      <b>已删掉的 5 个占位工具（都是点了只弹「这个工具还在做」的空壳）</b><br>
+      <span class="del">行程辅助组：</span><span class="del">打包清单 · 花费记账 · 交通汇总</span><br>
+      <span class="del">生活便利组：</span><span class="del">单位换算 · 时差换算</span>
+      <br><br>
+      <b>顺带拍平了「分组」这层</b><br>
+      原来两组各装一条工具，卡片头部只剩个组名、底下空一块，看着别扭。
+      现在去掉分组，工具卡直接装工具行，<code>GROUPS</code> → <code>TOOLS</code>，
+      wxml 去掉外层 <code>wx:for</code>，less 清掉 <code>.tgroup__head/__icon/__tt/__title/__desc</code>。
+      <br><br>
+      <b>要保留的是详情页自己的「打包清单」</b><br>
+      川西攻略第 05 区块那个按行程勾选的功能<b>没动</b>，跟工具清单列表不是一回事。
+    </div>
+  </div>
+</div>
+</body></html>

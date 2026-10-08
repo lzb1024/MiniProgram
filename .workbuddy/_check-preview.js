@@ -1,5 +1,8 @@
 const fs = require('fs');
-const h = fs.readFileSync('D:/LZB/LIN/preview/interface-preview.html', 'utf8');
+const path = require('path');
+// 项目根目录 = 本脚本所在目录的上一级（.workbuddy/..）
+const ROOT = path.resolve(__dirname, '..');
+const h = fs.readFileSync(path.join(ROOT, 'preview', 'interface-preview.html'), 'utf8');
 const need = [
   '.toc__day',
   '.toc__scroll--day',

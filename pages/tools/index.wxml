@@ -1,0 +1,52 @@
+<!--
+  pages/tools/index.wxml — 常用工具（tab2）
+
+  这一页是 tabBar 页面，底部由系统的 tabBar 占位，页面自身不用再留
+  「返回」入口，也不需要紧贴屏幕底的返回区。
+  顶部留白只让状态栏 + 呼吸位，右上角胶囊浮在同一条竖直带里，
+  本页没有吸顶条，标题往下挪一点就避开了（同 pages/index 的做法）。
+-->
+<view class="tools fg-theme">
+  <view class="tools__top" style="height:{{ statusTop }}px"></view>
+
+  <view class="tools__head">
+    <view class="tools__kicker">
+      <view class="tools__dot"></view>
+      <text>实用小工具</text>
+    </view>
+    <view class="tools__title">常用工具</view>
+    <view class="tools__sub">和行程无关的零碎需求，都收在这里</view>
+  </view>
+
+  <view class="tgroup">
+    <view class="tgroup__body">
+      <view
+        class="trow"
+        wx:for="{{ tools }}"
+        wx:key="id"
+        data-id="{{ item.id }}"
+        data-url="{{ item.url }}"
+        bindtap="onTapTool"
+      >
+        <view class="trow__icon">
+          <t-icon name="{{ item.icon }}" size="30rpx" color="#5A6B66" />
+        </view>
+        <view class="trow__main">
+          <view class="trow__title">{{ item.title }}</view>
+          <view class="trow__desc">{{ item.desc }}</view>
+        </view>
+        <!-- 还没做的工具压暗一点，避免误以为是能用却点不动 -->
+        <view class="trow__go {{ item.url ? '' : 'is-soon' }}">
+          <text class="trow__go-t">{{ item.url ? '' : '待做' }}</text>
+          <view class="trow__arrow"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="tools__foot">
+    <text class="tools__foot-p">目前只放了麻将记分，需要别的再往这里加</text>
+  </view>
+
+  <view class="tools__bottom"></view>
+</view>

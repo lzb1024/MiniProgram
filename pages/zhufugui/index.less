@@ -1,0 +1,743 @@
+// pages/zhufugui/index.less — 朱富贵计算
+//
+// 沿用「山野手账」浅色主题。四色盘沿用店里真实的餐盘颜色语义
+//（绿 / 黄 / 红 / 铁灰），这是本页唯一允许出现色相偏移的地方。
+@import '../../variable.less';
+
+/* 四色盘的真实盘色（仅用于色点与计数胶囊） */
+@plate-lv: #4a7c59;
+@plate-hu: #c99a2e;
+@plate-ho: #b23c33;
+@plate-ti: #6b7378;
+
+.zf {
+  min-height: 100vh;
+  background: @bg;
+  padding: 0 @page-pad;
+  box-sizing: border-box;
+
+  &__top {
+    flex: none;
+  }
+
+  &__nav {
+    height: 88rpx;
+    display: flex;
+    align-items: center;
+  }
+
+  &__back {
+    width: 64rpx;
+    height: 64rpx;
+    margin-left: -12rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: @radius-sm;
+
+    &.is-hover {
+      background: @card-strong;
+    }
+  }
+
+  &__head {
+    padding: 8rpx 0 @gap;
+  }
+
+  &__kicker {
+    display: flex;
+    align-items: center;
+    font-size: @font-size-small;
+    color: @text-dim;
+    letter-spacing: 1rpx;
+  }
+
+  &__dot {
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: @pine;
+    margin-right: 12rpx;
+    flex: none;
+  }
+
+  &__title {
+    margin-top: 10rpx;
+    font-size: 52rpx;
+    line-height: 1.2;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+
+  &__sub {
+    margin-top: 8rpx;
+    font-size: @body-small;
+    color: @text-faint;
+  }
+
+  &__bottom {
+    height: calc(60rpx + env(safe-area-inset-bottom));
+  }
+}
+
+/* ============ 模式切换 ============ */
+.seg {
+  display: flex;
+  padding: 6rpx;
+  background: @bg-deep;
+  border-radius: @radius-pill;
+  margin-bottom: @gap;
+
+  &__it {
+    flex: 1;
+    height: 72rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: @radius-pill;
+    font-size: @font-size-default;
+    color: @text-dim;
+    transition: all 0.18s ease;
+
+    &.is-on {
+      background: @card;
+      color: @pine;
+      font-weight: 600;
+      box-shadow: @shadow-sm;
+    }
+  }
+}
+
+/* ============ 会员价开关卡 ============ */
+.mcard {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 26rpx @page-pad;
+  margin-bottom: @gap;
+  .fg-glass();
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: @body-large;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__desc {
+    margin-top: 6rpx;
+    font-size: @font-size-mini;
+    color: @text-faint;
+    line-height: 1.5;
+  }
+}
+
+/* ============ 卡片 ============ */
+.card {
+  .fg-glass();
+
+  padding: 30rpx @page-pad;
+  margin-bottom: @gap;
+
+  &--sum {
+    .fg-topline();
+  }
+
+  &__title {
+    font-size: @body-large;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__hint {
+    margin-top: 8rpx;
+    font-size: @font-size-mini;
+    color: @text-faint;
+    line-height: 1.5;
+  }
+}
+
+/* ============ 人数 / 锅底 ============ */
+.grp {
+  margin-top: 22rpx;
+
+  &__it {
+    & + & {
+      margin-top: 20rpx;
+      padding-top: 20rpx;
+      border-top: 1rpx solid @border-soft;
+    }
+  }
+
+  /* 两列布局（预算模式的容差 / 偏好） */
+  &--two {
+    display: flex;
+    gap: 20rpx;
+
+    .grp__it {
+      flex: 1;
+      min-width: 0;
+
+      & + & {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: 0;
+      }
+    }
+  }
+
+  &__k {
+    font-size: @font-size-small;
+    color: @text-dim;
+    margin-bottom: 10rpx;
+  }
+
+  &__in-box {
+    display: flex;
+    align-items: center;
+    height: 80rpx;
+    padding: 0 22rpx;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+    box-sizing: border-box;
+  }
+
+  &__in {
+    flex: 1;
+    min-width: 0;
+    height: 80rpx;
+    font-size: 32rpx;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+
+  &__u {
+    flex: none;
+    margin-left: 10rpx;
+    font-size: @font-size-mini;
+    color: @text-faint;
+  }
+
+  &__pick {
+    height: 80rpx;
+    padding: 0 22rpx;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    font-size: @font-size-default;
+    color: @text;
+  }
+}
+
+/* ============ 盘子行 ============ */
+.prow {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 22rpx 0;
+
+  & + & {
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &:first-of-type {
+    margin-top: 14rpx;
+  }
+
+  /* 盘色点：店里就是靠颜色认价，这里保留真实色 */
+  &__dot {
+    flex: none;
+    width: 24rpx;
+    height: 24rpx;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2rpx rgba(0, 0, 0, 0.08);
+
+    &.is-lv {
+      background: @plate-lv;
+    }
+
+    &.is-hu {
+      background: @plate-hu;
+    }
+
+    &.is-ho {
+      background: @plate-ho;
+    }
+
+    &.is-ti {
+      background: @plate-ti;
+    }
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: @body-large;
+    color: @text;
+  }
+
+  &__note {
+    margin-top: 2rpx;
+    font-size: @font-size-mini;
+    color: @text-faint;
+  }
+
+  &__unit {
+    flex: none;
+    margin-right: 6rpx;
+    font-size: @font-size-small;
+    color: @clay;
+    .fg-display();
+
+    font-weight: 600;
+  }
+}
+
+/* ============ 步进器 ============ */
+.stepper {
+  flex: none;
+  display: flex;
+  align-items: center;
+  background: @card-strong;
+  border: 1rpx solid @border;
+  border-radius: @radius-sm;
+  overflow: hidden;
+
+  &__btn {
+    width: 64rpx;
+    height: 68rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36rpx;
+    color: @pine;
+    line-height: 1;
+
+    &:active {
+      background: @pine-soft;
+    }
+  }
+
+  &__in {
+    width: 72rpx;
+    height: 68rpx;
+    text-align: center;
+    font-size: 30rpx;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+    background: transparent;
+  }
+
+  &--sm .stepper__btn {
+    width: 60rpx;
+  }
+}
+
+/* ============ 饮料行 ============ */
+.drow {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 20rpx 0;
+
+  & + & {
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &:first-of-type {
+    margin-top: 14rpx;
+  }
+
+  &__pick {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__sel {
+    height: 80rpx;
+    padding: 0 22rpx;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    font-size: @font-size-small;
+    color: @text;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    &.is-ph {
+      color: @text-faint;
+    }
+  }
+
+  &__del {
+    flex: none;
+    width: 52rpx;
+    height: 52rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: @radius-sm;
+
+    &:active {
+      background: @card-strong;
+    }
+  }
+}
+
+.addbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  height: 84rpx;
+  margin-top: 16rpx;
+  border: 1rpx dashed @border;
+  border-radius: @radius-sm;
+  background: @card-strong;
+
+  &.is-hover {
+    opacity: 0.7;
+  }
+
+  &__t {
+    font-size: @font-size-small;
+    color: @pine;
+  }
+}
+
+/* ============ 合计 ============ */
+.sum {
+  text-align: center;
+  padding-bottom: 26rpx;
+  border-bottom: 1rpx solid @border-soft;
+
+  &__k {
+    font-size: @font-size-mini;
+    color: @text-faint;
+    letter-spacing: 2rpx;
+  }
+
+  &__v {
+    margin-top: 10rpx;
+    font-size: 76rpx;
+    line-height: 1;
+    .fg-grad-text();
+
+    .fg-display();
+
+    font-weight: 700;
+  }
+
+  &__per {
+    margin-top: 12rpx;
+    font-size: @font-size-small;
+    color: @clay;
+    .fg-display();
+
+    font-weight: 600;
+  }
+}
+
+.bill {
+  padding-top: 8rpx;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16rpx 0;
+    border-bottom: 1rpx solid @border-soft;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &.is-save {
+      .bill__k,
+      .bill__v {
+        color: @pine;
+      }
+    }
+  }
+
+  &__k {
+    font-size: @font-size-small;
+    color: @text-dim;
+  }
+
+  &__v {
+    font-size: @font-size-default;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+}
+
+.detail {
+  padding-top: 16rpx;
+  border-top: 1rpx dashed @border;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10rpx 0;
+  }
+
+  &__k {
+    font-size: @font-size-mini;
+    color: @text-faint;
+  }
+
+  &__v {
+    font-size: @font-size-mini;
+    color: @text-dim;
+  }
+}
+
+/* ============ 预算反推 ============ */
+.field {
+  margin-top: 20rpx;
+
+  &__box {
+    display: flex;
+    align-items: center;
+    height: 96rpx;
+    padding: 0 24rpx;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+    box-sizing: border-box;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 96rpx;
+    font-size: 40rpx;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+
+  &__ph {
+    color: @text-faint;
+    font-weight: 400;
+    font-size: @font-size-default;
+  }
+
+  &__unit {
+    flex: none;
+
+    &.is-pre {
+      margin-right: 12rpx;
+      font-size: 34rpx;
+      color: @clay;
+      .fg-display();
+
+      font-weight: 600;
+    }
+  }
+}
+
+.combo {
+  .fg-glass();
+
+  padding: 26rpx @page-pad;
+  margin-bottom: @gap;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+
+  &__total {
+    font-size: 52rpx;
+    line-height: 1;
+    .fg-grad-text();
+
+    .fg-display();
+
+    font-weight: 700;
+  }
+
+  &__tag {
+    padding: 6rpx 16rpx;
+    border-radius: @radius-pill;
+    background: @card-strong;
+    font-size: @font-size-mini;
+    color: @text-dim;
+
+    &.is-hit {
+      background: @pine-soft;
+      color: @pine;
+      font-weight: 600;
+    }
+  }
+
+  &__plates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+    margin-top: 22rpx;
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 22rpx;
+    padding-top: 20rpx;
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &__sum {
+    font-size: @font-size-mini;
+    color: @text-faint;
+  }
+
+  &__use {
+    padding: 10rpx 26rpx;
+    border-radius: @radius-pill;
+    background: @pine-soft;
+    font-size: @font-size-small;
+    color: @pine;
+    font-weight: 600;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+}
+
+/* 色盘计数胶囊：底色取盘色的淡版 */
+.cpill {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 20rpx;
+  border-radius: @radius-pill;
+  background: @card-strong;
+
+  &__n {
+    font-size: @font-size-small;
+    color: @text-dim;
+  }
+
+  &__q {
+    font-size: @font-size-default;
+    .fg-display();
+
+    font-weight: 700;
+  }
+
+  &.is-lv {
+    background: fade(@plate-lv, 14%);
+
+    .cpill__q {
+      color: @plate-lv;
+    }
+  }
+
+  &.is-hu {
+    background: fade(@plate-hu, 16%);
+
+    .cpill__q {
+      color: darken(@plate-hu, 12%);
+    }
+  }
+
+  &.is-ho {
+    background: fade(@plate-ho, 13%);
+
+    .cpill__q {
+      color: @plate-ho;
+    }
+  }
+
+  &.is-ti {
+    background: fade(@plate-ti, 14%);
+
+    .cpill__q {
+      color: @plate-ti;
+    }
+  }
+}
+
+.tip {
+  padding: 20rpx @page-pad;
+  margin-bottom: @gap;
+  border-radius: @radius-sm;
+  background: @amber-soft;
+  font-size: @font-size-mini;
+  color: @amber;
+  line-height: 1.6;
+}
+
+.hintline {
+  padding: 0 4rpx 8rpx;
+  font-size: @font-size-mini;
+  line-height: 1.7;
+  color: @text-faint;
+}
+
+/* ============ 通用 ============ */
+.empty {
+  padding: 36rpx 0 @gap;
+  text-align: center;
+  font-size: @font-size-small;
+  color: @text-faint;
+}
+
+.btn {
+  height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: @radius-pill;
+  font-size: 32rpx;
+  font-weight: 600;
+  margin-bottom: 20rpx;
+
+  &.is-hover {
+    opacity: 0.82;
+  }
+
+  &--main {
+    background: @grad-135;
+    color: #ffffff;
+
+    .fg-display();
+  }
+
+  &--ghost {
+    background: @card;
+    border: 1rpx solid @border;
+    color: @text-dim;
+    font-weight: 400;
+  }
+}

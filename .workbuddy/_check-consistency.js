@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = 'D:/LZB/LIN';
+const ROOT = 'E:/3_WorkSpace/MiniProgram';
 const wxml = fs.readFileSync(path.join(ROOT, 'pages/home/index.wxml'), 'utf8');
 const lessAll = [
   'pages/home/index.less',

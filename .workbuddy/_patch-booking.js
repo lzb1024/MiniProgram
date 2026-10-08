@@ -2,9 +2,11 @@
    （04 预约区块：倒计时只留用户给的 4 项，steps 长文整体删掉）。
    用括号配平定位，避免行号漂移。跑完可删。 */
 const fs = require('fs');
+const path = require('path');
 
-const FILE = 'D:/LZB/LIN/mock/home/getTrip.js';
-const LOG = 'D:/LZB/LIN/.workbuddy/_out-patch.txt';
+const ROOT = path.resolve(__dirname, '..');
+const FILE = path.join(ROOT, 'mock/home/getTrip.js');
+const LOG = path.join(ROOT, '.workbuddy/_out-patch.txt');
 
 const NEW = [
   'const booking = {',

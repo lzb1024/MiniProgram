@@ -1,0 +1,193 @@
+<!--
+  pages/mahjong/index.wxml — 麻将记分
+
+  三段式：setup（新开一局）→ playing（对局中）→ played（结算）。
+  navigationStyle: custom，所以自带一个返回条；顶部留白 = 状态栏 + 呼吸位，
+  右上角胶囊浮在同一竖直带里，标题往左留白就避开了（同 pages/tools 的做法）。
+-->
+<view class="mj fg-theme">
+  <view class="mj__top" style="height:{{ statusTop }}px"></view>
+
+  <!-- 自定义返回条（普通页，右上角是胶囊，这里只放左侧返回） -->
+  <view class="mj__nav">
+    <view class="mj__back" bindtap="onBackNav" hover-class="is-hover">
+      <t-icon name="chevron-left" size="40rpx" color="#22302E" />
+    </view>
+  </view>
+
+  <view class="mj__head">
+    <view class="mj__kicker">
+      <view class="mj__dot"></view>
+      <text>生活便利</text>
+    </view>
+    <view class="mj__title">麻将记分</view>
+    <view class="mj__sub">开局定好底分，收局自动算清谁付谁</view>
+  </view>
+
+  <!-- ============ ① 新开一局 ============ -->
+  <block wx:if="{{ phase === 'setup' }}">
+    <view class="card">
+      <view class="card__title">开局设置</view>
+
+      <view class="field">
+        <view class="field__label">每人初始手牌数量</view>
+        <view class="field__box">
+          <input
+            class="field__input"
+            type="number"
+            value="{{ startCards }}"
+            placeholder="例如 13"
+            placeholder-class="field__ph"
+            bindinput="onStartCards"
+          />
+          <text class="field__unit">张</text>
+        </view>
+      </view>
+
+      <view class="field">
+        <view class="field__label">单张手牌价值</view>
+        <view class="field__box">
+          <text class="field__unit is-pre">¥</text>
+          <input
+            class="field__input"
+            type="digit"
+            value="{{ cardValue }}"
+            placeholder="例如 1"
+            placeholder-class="field__ph"
+            bindinput="onCardValue"
+          />
+          <text class="field__unit">元 / 张</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="card__title">四位玩家</view>
+      <view class="card__hint">名称可留空，结算时按 A B C D 显示</view>
+
+      <view class="prow" wx:for="{{ players }}" wx:key="index">
+        <view class="prow__tag">{{ ['A','B','C','D'][index] }}</view>
+        <input
+          class="prow__input"
+          value="{{ item.name }}"
+          placeholder="玩家名称"
+          placeholder-class="field__ph"
+          data-i="{{ index }}"
+          bindinput="onName"
+        />
+      </view>
+    </view>
+
+    <view class="btn btn--main" bindtap="onBegin" hover-class="is-hover">开始记分</view>
+  </block>
+
+  <!-- ============ ② 对局中 ============ -->
+  <block wx:elif="{{ phase === 'playing' }}">
+    <view class="card card--info">
+      <view class="card__title">本局参数</view>
+      <view class="meta">
+        <view class="meta__cell">
+          <view class="meta__k">初始每人</view>
+          <view class="meta__v">{{ startCards }}<text class="meta__u">张</text></view>
+        </view>
+        <view class="meta__line"></view>
+        <view class="meta__cell">
+          <view class="meta__k">单张价值</view>
+          <view class="meta__v">{{ cardValue }}<text class="meta__u">元</text></view>
+        </view>
+      </view>
+      <view class="seats">
+        <view class="seat" wx:for="{{ players }}" wx:key="index">
+          <view class="seat__tag">{{ ['A','B','C','D'][index] }}</view>
+          <view class="seat__name">{{ item.name || ['A','B','C','D'][index] }}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="btn btn--main" bindtap="onFinish" hover-class="is-hover">本局结束，填写手牌</view>
+    <view class="btn btn--ghost" bindtap="onBackSetup" hover-class="is-hover">重新设置本局</view>
+  </block>
+
+  <!-- ============ ③ 结算 ============ -->
+  <block wx:else>
+    <view class="card">
+      <view class="card__title">每人现有手牌</view>
+      <view class="card__hint">初始每人 {{ startCards }} 张 · 单张 {{ cardValue }} 元</view>
+
+      <view class="prow" wx:for="{{ players }}" wx:key="index">
+        <view class="prow__tag">{{ ['A','B','C','D'][index] }}</view>
+        <view class="prow__name">{{ item.name || ['A','B','C','D'][index] }}</view>
+        <view class="field__box prow__box">
+          <input
+            class="field__input"
+            type="number"
+            value="{{ item.current }}"
+            placeholder="现有张数"
+            placeholder-class="field__ph"
+            data-i="{{ index }}"
+            bindinput="onCurrent"
+          />
+          <text class="field__unit">张</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 总数校验 -->
+    <view class="check {{ result && result.balanced ? 'is-ok' : 'is-bad' }}" wx:if="{{ ready }}">
+      <t-icon
+        name="{{ result.balanced ? 'check-circle-filled' : 'error-circle-filled' }}"
+        size="36rpx"
+        color="{{ result.balanced ? '#1E6B5A' : '#B4552D' }}"
+      />
+      <view class="check__body">
+        <view class="check__title">
+          {{ result.balanced ? '总数正确' : '总数对不上，请核对' }}
+        </view>
+        <view class="check__desc">
+          四人合计 {{ result.actualTotal }} 张，应为 {{ result.totalStart }} 张<block wx:if="{{ !result.balanced }}">，相差 {{ result.totalDiff > 0 ? '+' : '' }}{{ result.totalDiff }} 张</block>
+        </view>
+      </view>
+    </view>
+
+    <!-- 盈亏 -->
+    <view class="card" wx:if="{{ ready }}">
+      <view class="card__title">盈亏情况</view>
+      <view class="brow" wx:for="{{ result.rows }}" wx:key="label">
+        <view class="brow__tag" data-state="{{ item.state }}">{{ item.label }}</view>
+        <view class="brow__name">{{ item.name }}</view>
+        <view class="brow__cards">{{ item.diffCards > 0 ? '+' : '' }}{{ item.diffCards }} 张</view>
+        <view class="brow__money is-{{ item.state }}">
+          {{ item.state === 'even' ? '持平' : (item.state === 'win' ? '+' : '-') + item.diffMoneyAbs }}
+        </view>
+      </view>
+    </view>
+
+    <!-- 支付方案 -->
+    <view class="card" wx:if="{{ ready }}">
+      <view class="card__title">支付方案</view>
+      <block wx:if="{{ result.transfers.length }}">
+        <view class="trow" wx:for="{{ result.transfers }}" wx:key="key">
+          <view class="trow__who">
+            <text class="trow__from">{{ item.fromName }}</text>
+            <text class="trow__arrow">付给</text>
+            <text class="trow__to">{{ item.toName }}</text>
+          </view>
+          <view class="trow__money">¥{{ item.money }}<text class="trow__cards">{{ item.cards }} 张</text></view>
+        </view>
+        <view class="card__foot">共 {{ result.transfers.length }} 笔，合计 ¥{{ result.totalMoney }}</view>
+      </block>
+      <view class="empty" wx:else>本局四人平手，无需支付</view>
+    </view>
+
+    <!-- 未填齐时的提示 -->
+    <view class="empty empty--hint" wx:if="{{ !ready }}">把四人的现有手牌都填上，马上出结果</view>
+
+    <block wx:if="{{ ready }}">
+      <view class="btn btn--main" bindtap="onCopy" hover-class="is-hover">复制结果发群里</view>
+    </block>
+    <view class="btn btn--ghost" bindtap="onReset" hover-class="is-hover">清空张数，再来一局</view>
+    <view class="btn btn--ghost" bindtap="onBackPlaying" hover-class="is-hover">返回对局参数</view>
+  </block>
+
+  <view class="mj__bottom"></view>
+</view>

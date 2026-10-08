@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = 'D:/LZB/LIN';
+const ROOT = path.resolve(__dirname, '..');
 const MOCK = path.join(ROOT, 'mock/home/getTrip.js');
 const OUT = path.join(ROOT, '.workbuddy/_out-patch-days.txt');
 

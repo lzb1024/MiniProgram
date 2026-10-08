@@ -3,7 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = 'D:/LZB/LIN';
+const ROOT = path.resolve(__dirname, '..');
 const CF = path.join(ROOT, 'cloudfunctions/weather/index.js');
 const CJS = path.join(ROOT, '.workbuddy/_weather-cjs.js');
 const TMP_MOCK = path.join(ROOT, '.workbuddy/_trip2.tmp.cjs');

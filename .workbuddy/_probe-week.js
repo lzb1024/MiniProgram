@@ -1,10 +1,10 @@
 // 把云函数真实返回喂一遍前端组装逻辑，看首页七天条会渲染成什么样。
-// 用法: node .workbuddy/_run.js week <绝对路径 node> D:/LZB/LIN/.workbuddy/_probe-week.js
+// 用法: node .workbuddy/_run.js week <绝对路径 node> <项目根>/.workbuddy/_probe-week.js
 // 输出落 .workbuddy/_out-week.txt（本机 PowerShell 吞 stdout）
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = 'D:/LZB/LIN';
+const ROOT = path.resolve(__dirname, '..');
 const CJS = path.join(ROOT, '.workbuddy/_weather-cjs.js');
 const TMP = path.join(ROOT, '.workbuddy/_trip2.tmp.cjs');
 

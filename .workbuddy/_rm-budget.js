@@ -1,6 +1,8 @@
 // 一次性：从 mock 里摘掉 04 费用预算整块
 const fs = require('fs');
-const p = 'D:/LZB/LIN/mock/home/getTrip.js';
+const path = require('path');
+const ROOT = path.resolve(__dirname, '..');
+const p = path.join(ROOT, 'mock/home/getTrip.js');
 const lines = fs.readFileSync(p, 'utf8').split(/\r?\n/);
 
 const start = lines.findIndex((l) => l.includes('04 费用预算（人均）——'));
@@ -18,7 +20,7 @@ if (lines[start + count].trim() !== '// ========================================
 lines.splice(start, count);
 fs.writeFileSync(p, lines.join('\n'), 'utf8');
 fs.writeFileSync(
-  'D:/LZB/LIN/.workbuddy/_out-rmbudget.txt',
+  path.join(ROOT, '.workbuddy/_out-rmbudget.txt'),
   `removed ${count} lines (${start + 1}~${start + count}), file now ${lines.length} lines\n` +
     lines
       .map((l, i) => `${i + 1}: ${l}`)

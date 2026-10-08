@@ -4,12 +4,20 @@
 > 见同目录 `MEMORY-detail.md`；当天做了什么见 `YYYY-MM-DD.md`。
 
 ## 是什么
-微信小程序，**个人自用旅游攻略（综合版，多趟行程）**。原生 WXML/JS + LESS + TDesign v1.11.2。
-appid `wxfd95a21919677707`，工作区 `D:\LZB\LIN`。**无 tabBar**。
-**2026-10-07 起两页**：`pages/index`（行程列表，综合版新首页）+ `pages/home`（详情页，读 `?trip=xxx`）。
+微信小程序，**个人自用旅游攻略（综合版，多趟行程）**。原生 WXML/JS + LESS + TDesign v1.12.1。
+appid `wxfd95a21919677707`。**本工作区根 = `E:\3_WorkSpace\MiniProgram`**（旧记的 `D:\LZB\LIN` 已失效，
+`.workbuddy/` 下脚本里硬编码的 ROOT 常量要按本工作区改）。
+**有 tabBar 两页**：`pages/index`（旅行攻略，行程列表）+ `pages/tools`（常用工具）；
+**普通页**：`pages/mahjong`（麻将记分）、`pages/zhufugui`（朱富贵火锅计算，两者 2026-10-08 加）、
+`pages/home`（行程详情，读 `?trip=xxx`）。
+**`pages/tools` 目前两条工具**（2026-10-08 删掉 5 个占位工具，并把「分组」层拍平为扁平 `TOOLS[]`）。
+加条目只改 `TOOLS`，wxml 不用动。
 现有行程：**川西**（9.25-10.03，9 天）、**长沙**（11.06-11.08，3 天 2 晚，内容为占位待填）。
 唯一组件 `components/nav` = **空白自定义导航栏**（`t-navbar` 壳 + 玻璃底，z-index 31），只在详情页用。
 原「页面目录」抽屉、顶部搜索框与 6 个分包页面均已于 2026-09-13 拆除。
+**`t-icon` 的 name 必须先核对字体表**（`node_modules/tdesign-miniprogram/miniprogram_dist/icon/icon.wxss`
+里找 `.t-icon-{name}:`）——TDesign 无 `dice`，麻将记分用的 `gamepad` 才存在。写错不报错，只留空白。
+**新增页面后要清开发者工具全部缓存再编译**（同「增删页面」那条，幽灵 ENOENT）。
 
 ## 多行程（综合版，2026-10-07 立）
 - **详情页端点按路径不按 query**：`/home/trip/{id}`。WxMock 用**完整 URL 字符串**做 key
@@ -43,12 +51,24 @@ mixin：`.fg-theme()` / `.fg-glass()` / `.fg-grad-text()`。禁用 em-dash 与 e
 3. 项目开着时增删页面 / 改名，工具文件模型会不同步（幽灵 ENOENT）：改完让用户清全部缓存再编译。
 
 ## 组件 / API 雷区
+- **`usingComponents` 的路径本工作区一律用「两段」写法**：`tdesign-miniprogram/icon/icon`、
+  `tdesign-miniprogram/toast/toast`、`tdesign-miniprogram/navbar/navbar`、`tdesign-miniprogram/message/message`。
+  `pages/home` / `pages/tools` / `components/nav` 都是这个形状，**别按「v1 已拍平成单段」去写
+  `tdesign-miniprogram/icon`** —— 开发者工具会报「…/pages/mahjong/tdesign-miniprogram/icon 路径下未找到组件」，
+  并且它会按「页面相对路径」去找（所以错误信息里带着 `pages/mahjong/` 前缀），看起来像文件缺失，其实是路径写法错。
+  2026-10-08 踩过一次（麻将页写单段 → 报错），改回两段即好。
 - **`wx.switchTab` 静默失效**（无 tabBar）：跨页用 `navigateTo`，回主页用 `reLaunch`。
 - **不要用 `t-pull-down-refresh` 包内容页**：内部是 `<scroll-view scroll-y>`，会让
   `pageScrollTo` / `onPageScroll` / `sticky` 全部静默失效。改用原生 `enablePullDownRefresh`。
 - `wx.pageScrollTo` 别用裸 selector / `offsetTop`：自查 `boundingClientRect` + `scrollOffset`，
   再减吸顶条高度。
 - `usingComponents` 必须与 wxml 标签一致（`t-toast`/`t-message`/`t-progress` 最易漏）。
+- **TDesign 组件路径分 v0 / v1 两种写法，写错就报「路径下未找到组件」**：
+  v0 = `tdesign-miniprogram/toast/toast`（同名子目录），v1 文档写法是 `tdesign-miniprogram/toast`（拍平）。
+  **本项目一律用 v0 那形状的两段写法**（见上一条实测结论）；只有 `message` 的 JS 入口是
+  `tdesign-miniprogram/message/index`。排查这类报错时**先对版本核路径，再怀疑没构建 npm**。
+- 仓库 `node_modules` / `miniprogram_npm` 都被 gitignore 忽略，**克隆后要 `npm install` 再由用户在
+  开发者工具「工具 - 构建 npm」**，否则全部 `t-*` 解析失败。改 `usingComponents` 后需重新构建 npm。
 - **同名 class 别跨区块复用**：浅色实色背景下撞了就是「某块莫名多一圈底色」。
 - **`<picker>` 里别用百分比高度**：包装节点高度 auto → 容器塌陷 → 内容贴格子上沿不居中。把高度写实。
 - **同一文件禁止并行发多个 Edit**：各自基于旧快照回写，最后写入者胜，其余静默丢失（且都报成功）。
@@ -122,6 +142,15 @@ wxml 取 `s.label` 取不到，渲染成一排**空白方框**（同样不报错
   它按「路径含 `cloudfunctions/` 或以 `_gen-1home.js` 结尾」判 CommonJS，其余当 ESM。
 - **搬动mock 文件要同步这三处硬编码路径**：`.workbuddy/_check-consistency.js`、
   `preview/_gen-1home.js`、`.workbuddy/_syntax-check.js`。漏了不会立刻报错，只是校验静默跑旧文件。
+- **`.workbuddy/` 脚本一律用 `path.resolve(__dirname, '..')` 推项目根，禁止再写绝对路径**
+  （2026-10-08 已把 17 处 `D:/LZB/LIN` 全改掉）。技能脚本与 node workspace 路径也换成本机用户名
+  `C:/Users/LZB/...`。同项目原生写法一致（`preview/_gen-1home.js` 本来就自推导）。新写脚本照此办。
+- **`check-json.js`（技能版）不认 JSONL**：`costs-import.json`、`packing-import.json` 是每行一条 JSON，
+  技能版会报 `Unexpected non-whitespace character after JSON`，**是误报**；只有项目自己的
+  `_check-json.js`（技能脚本里被覆写成 `countJsonLines()`）才认。别因此去改数据文件。
+- **绕 spawn EBUSY 的现成工具：`.workbuddy/_syntax-nospawn.mjs`**（进程内 `new Function` 剥离
+  ESM 语法后校验，不 spawn）。注意它对 CJS 文件含模板字符串会误报（如 `preview/_gen-1home.js`），
+  那类文件**直接运行它**即是最可靠的验证。
 - **本机 Bash 工具不可用**（`dirname`/`head` 都缺）；跑脚本一律走
   `node .workbuddy/_run.js <标签> <绝对路径 node> <脚本...>`（自己落盘 `_out-run.txt`）。PowerShell 取输出要转 UTF-8。
 - 首页预览片段由 `node preview/_gen-1home.js` 从 `mock/trips/chuanxi.js` 生成，**别手改**（只出川西一份）。

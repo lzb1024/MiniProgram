@@ -1,0 +1,396 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>朱富贵计算 · 预览 · 综合版小程序</title><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#E9E6DC;padding:32px;font:14px/1.5 -apple-system,"PingFang SC","Microsoft YaHei",sans-serif;color:#22302E}
+h1{font-size:20px;font-weight:600;margin-bottom:6px;font-family:"Songti SC",serif}
+.cap-top{font-size:12px;color:#5A6B66;margin-bottom:22px}
+.row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.col{flex:none;width:414px}
+.cap{font:600 13px/1 sans-serif;color:#5A6B66;margin:0 0 10px 2px}
+.phone{background:#F7F5EF;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(34,48,46,.14);padding-top:44px;min-height:640px}
+.zf{background:#F7F5EF;padding:0 16px}
+.zf__nav{height:44px;display:flex;align-items:center}
+.zf__back{width:32px;height:32px;margin-left:-6px;display:flex;align-items:center;justify-content:center;border-radius:10px;font-size:20px}
+.zf__head{padding:4px 0 12px}
+.zf__kicker{display:flex;align-items:center;font-size:14px;color:#5A6B66}
+.zf__dot{width:5px;height:5px;border-radius:50%;background:#1E6B5A;margin-right:6px;flex:none}
+.zf__title{margin-top:5px;font-size:26px;line-height:1.2;font-family:"Songti SC",serif;font-weight:600}
+.zf__sub{margin-top:4px;font-size:12px;color:#8C9A94}
+.seg{display:flex;padding:3px;background:#EFECE1;border-radius:999px;margin-bottom:12px}
+.seg__it{flex:1;height:36px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:14px;color:#5A6B66;cursor:pointer}
+.seg__it.is-on{background:#FFF;color:#1E6B5A;font-weight:600;box-shadow:0 1px 4px rgba(34,48,46,.05)}
+.mcard{display:flex;align-items:center;gap:10px;padding:13px 16px;margin-bottom:12px;background:#FFF;border:1px solid #E4E1D5;border-radius:14px;box-shadow:0 1px 4px rgba(34,48,46,.05)}
+.mcard__main{flex:1;min-width:0}
+.mcard__title{font-size:16px;font-weight:600}
+.mcard__desc{margin-top:3px;font-size:12px;color:#8C9A94;line-height:1.5}
+.sw{flex:none;width:44px;height:26px;border-radius:999px;background:#1E6B5A;position:relative;cursor:pointer;transition:.18s}
+.sw.is-off{background:#C9CFC9}
+.sw::after{content:'';position:absolute;top:3px;left:21px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.18s}
+.sw.is-off::after{left:3px}
+.card{background:#FFF;border:1px solid #E4E1D5;border-radius:14px;box-shadow:0 1px 4px rgba(34,48,46,.05),0 4px 16px rgba(34,48,46,.04);padding:15px 16px;margin-bottom:12px;position:relative;overflow:hidden}
+.card--sum::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#1E6B5A,#2E6E95);opacity:.7}
+.card__title{font-size:16px;font-weight:600}
+.card__hint{margin-top:4px;font-size:12px;color:#8C9A94;line-height:1.5}
+.grp{margin-top:11px}
+.grp__it+.grp__it{margin-top:10px;padding-top:10px;border-top:1px solid #EEECE2}
+.grp--two{display:flex;gap:10px}
+.grp--two .grp__it{flex:1;min-width:0}
+.grp--two .grp__it+.grp__it{margin-top:0;padding-top:0;border-top:0}
+.grp__k{font-size:14px;color:#5A6B66;margin-bottom:5px}
+.grp__in-box{display:flex;align-items:center;height:40px;padding:0 11px;background:#FBFAF6;border:1px solid #E4E1D5;border-radius:10px}
+.grp__in{flex:1;min-width:0;height:40px;border:0;background:transparent;font-size:16px;font-family:"Songti SC",serif;font-weight:600;color:#22302E;outline:none}
+.grp__u{flex:none;margin-left:5px;font-size:12px;color:#8C9A94}
+.grp__pick{height:40px;padding:0 11px;background:#FBFAF6;border:1px solid #E4E1D5;border-radius:10px;display:flex;align-items:center;font-size:14px;color:#22302E;cursor:pointer}
+.prow{display:flex;align-items:center;gap:8px;padding:11px 0;border-top:1px solid #EEECE2}
+.prow:first-of-type{margin-top:7px;border-top:0}
+.prow__dot{flex:none;width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.prow__dot.is-lv{background:#4A7C59}.prow__dot.is-hu{background:#C99A2E}
+.prow__dot.is-ho{background:#B23C33}.prow__dot.is-ti{background:#6B7378}
+.prow__main{flex:1;min-width:0}
+.prow__name{font-size:16px;color:#22302E}
+.prow__note{margin-top:1px;font-size:12px;color:#8C9A94}
+.prow__unit{flex:none;margin-right:3px;font-size:14px;color:#B4552D;font-family:"Songti SC",serif;font-weight:600}
+.stepper{flex:none;display:flex;align-items:center;background:#FBFAF6;border:1px solid #E4E1D5;border-radius:10px;overflow:hidden}
+.stepper__btn{width:30px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#1E6B5A;line-height:1;cursor:pointer;user-select:none}
+.stepper__btn:active{background:#E3EFE9}
+.stepper__in{width:36px;height:34px;text-align:center;font-size:15px;font-family:"Songti SC",serif;font-weight:600;color:#22302E;background:transparent;border:0;outline:none;-moz-appearance:textfield}
+.stepper__in::-webkit-outer-spin-button,.stepper__in::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.drow{display:flex;align-items:center;gap:7px;padding:10px 0;border-top:1px solid #EEECE2}
+.drow:first-of-type{margin-top:7px;border-top:0}
+.drow__sel{flex:1;min-width:0;height:40px;padding:0 11px;background:#FBFAF6;border:1px solid #E4E1D5;border-radius:10px;display:flex;align-items:center;font-size:14px;color:#22302E;cursor:pointer;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.drow__sel.is-ph{color:#8C9A94}
+.drow__del{flex:none;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:8px;color:#8C9A94;cursor:pointer;font-size:15px}
+.addbtn{display:flex;align-items:center;justify-content:center;gap:4px;height:42px;margin-top:8px;border:1px dashed #E4E1D5;border-radius:10px;background:#FBFAF6;color:#1E6B5A;font-size:14px;cursor:pointer}
+.sum{text-align:center;padding-bottom:13px;border-bottom:1px solid #EEECE2}
+.sum__k{font-size:12px;color:#8C9A94;letter-spacing:1px}
+.sum__v{margin-top:5px;font-size:38px;line-height:1;font-family:"Songti SC",serif;font-weight:700;background:linear-gradient(90deg,#1E6B5A,#2E6E95);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.sum__per{margin-top:6px;font-size:14px;color:#B4552D;font-family:"Songti SC",serif;font-weight:600}
+.bill{padding-top:4px}
+.bill__row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #EEECE2}
+.bill__row:last-child{border-bottom:0}
+.bill__row.is-save .bill__k,.bill__row.is-save .bill__v{color:#1E6B5A}
+.bill__k{font-size:14px;color:#5A6B66}
+.bill__v{font-size:16px;font-family:"Songti SC",serif;font-weight:600}
+.detail{padding-top:8px;border-top:1px dashed #E4E1D5;margin-top:4px}
+.detail__row{display:flex;align-items:center;justify-content:space-between;padding:5px 0}
+.detail__k{font-size:12px;color:#8C9A94}
+.detail__v{font-size:12px;color:#5A6B66}
+.field{margin-top:10px}
+.field__box{display:flex;align-items:center;height:48px;padding:0 12px;background:#FBFAF6;border:1px solid #E4E1D5;border-radius:10px}
+.field__input{flex:1;min-width:0;height:48px;border:0;background:transparent;font-size:20px;font-family:"Songti SC",serif;font-weight:600;color:#22302E;outline:none}
+.field__unit.is-pre{margin-right:6px;font-size:17px;color:#B4552D;font-family:"Songti SC",serif;font-weight:600}
+.btn{height:48px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:16px;font-weight:600;margin-bottom:10px;cursor:pointer;user-select:none}
+.btn--main{background:linear-gradient(135deg,#1E6B5A,#2E6E95);color:#fff;font-family:"Songti SC",serif}
+.btn--ghost{background:#FFF;border:1px solid #E4E1D5;color:#5A6B66;font-weight:400}
+.combo{background:#FFF;border:1px solid #E4E1D5;border-radius:14px;box-shadow:0 1px 4px rgba(34,48,46,.05);padding:13px 16px;margin-bottom:12px}
+.combo__head{display:flex;align-items:baseline;justify-content:space-between}
+.combo__total{font-size:26px;line-height:1;font-family:"Songti SC",serif;font-weight:700;background:linear-gradient(90deg,#1E6B5A,#2E6E95);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.combo__tag{padding:3px 8px;border-radius:999px;background:#FBFAF6;font-size:12px;color:#5A6B66}
+.combo__tag.is-hit{background:#E3EFE9;color:#1E6B5A;font-weight:600}
+.combo__plates{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.cpill{display:flex;align-items:center;gap:4px;padding:5px 10px;border-radius:999px;background:#FBFAF6}
+.cpill__n{font-size:13px;color:#5A6B66}
+.cpill__q{font-size:15px;font-family:"Songti SC",serif;font-weight:700}
+.cpill.is-lv{background:rgba(74,124,89,.14)}.cpill.is-lv .cpill__q{color:#4A7C59}
+.cpill.is-hu{background:rgba(201,154,46,.16)}.cpill.is-hu .cpill__q{color:#9C7519}
+.cpill.is-ho{background:rgba(178,60,51,.13)}.cpill.is-ho .cpill__q{color:#B23C33}
+.cpill.is-ti{background:rgba(107,115,120,.14)}.cpill.is-ti .cpill__q{color:#6B7378}
+.combo__foot{display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid #EEECE2}
+.combo__sum{font-size:12px;color:#8C9A94}
+.combo__use{padding:5px 13px;border-radius:999px;background:#E3EFE9;font-size:14px;color:#1E6B5A;font-weight:600;cursor:pointer}
+.tip{padding:10px 16px;margin-bottom:12px;border-radius:10px;background:#F7F0DD;font-size:12px;color:#9A6B00;line-height:1.6}
+.hintline{padding:0 2px 4px;font-size:12px;line-height:1.7;color:#8C9A94}
+.note{font-size:12px;line-height:1.75;color:#5A6B66;background:#FFF;border:1px solid #E4E1D5;border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.note b{color:#22302E}
+.note code{background:#FBFAF6;padding:1px 5px;border-radius:4px;font-size:11px}
+table.t{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.t th,table.t td{border:1px solid #EEECE2;padding:6px 8px;text-align:center}
+table.t th{background:#FBFAF6;color:#5A6B66;font-weight:600}
+</style></head><body>
+<h1>朱富贵计算 · 界面预览</h1>
+<p class="cap-top">pages/zhufugui · 结构与样式还原自 <code>pages/zhufugui/index.*</code>，两个模式都是<b>真实计算</b>（算法取自 <code>utils/zhufugui.js</code>）</p>
+
+<div class="row">
+  <!-- 模式一 -->
+  <div class="col">
+    <p class="cap">① 算总价 · 可直接操作</p>
+    <div class="phone"><div class="zf">
+      <div class="zf__nav"><div class="zf__back">‹</div></div>
+      <div class="zf__head">
+        <div class="zf__kicker"><div class="zf__dot"></div><span>常用工具</span></div>
+        <div class="zf__title">朱富贵计算</div>
+        <div class="zf__sub">按盘算账，锅底调料饮料不打折</div>
+      </div>
+
+      <div class="seg">
+        <div class="seg__it is-on">算总价</div>
+        <div class="seg__it">预算反推</div>
+      </div>
+
+      <div class="mcard">
+        <div class="mcard__main">
+          <div class="mcard__title">会员价 6.8 折</div>
+          <div class="mcard__desc" id="mdesc">菜金已按折后价计算，锅底调料饮料不打折</div>
+        </div>
+        <div class="sw" id="sw"></div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">人数与锅底</div>
+        <div class="grp">
+          <div class="grp__it"><div class="grp__k">用餐人数</div><div class="grp__in-box"><input class="grp__in" id="people" type="number" value="4"><span class="grp__u">人</span></div></div>
+          <div class="grp__it"><div class="grp__k">普通锅底 · 12/份</div><div class="grp__in-box"><input class="grp__in" id="potNormal" type="number" value="4"><span class="grp__u">份</span></div></div>
+          <div class="grp__it"><div class="grp__k">清汤锅底 · 6/份</div><div class="grp__in-box"><input class="grp__in" id="potClear" type="number" value="0"><span class="grp__u">份</span></div></div>
+        </div>
+        <div class="card__hint">调料纸巾按 4 元/人 自动计入</div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">盘子数量</div>
+        <div class="card__hint">单价随上方会员价开关变化</div>
+        <div id="plates"></div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">饮料酒水</div>
+        <div class="card__hint">不打折，按份数计入</div>
+        <div id="drinks"></div>
+        <div class="addbtn" id="addDrink">＋ 添加饮料</div>
+      </div>
+
+      <div id="result"></div>
+      <div class="btn btn--ghost">清空重填</div>
+    </div></div>
+  </div>
+
+  <!-- 模式二 -->
+  <div class="col">
+    <p class="cap">② 预算反推 · 可直接操作</p>
+    <div class="phone"><div class="zf">
+      <div class="zf__nav"><div class="zf__back">‹</div></div>
+      <div class="zf__head">
+        <div class="zf__kicker"><div class="zf__dot"></div><span>常用工具</span></div>
+        <div class="zf__title">朱富贵计算</div>
+        <div class="zf__sub">按盘算账，锅底调料饮料不打折</div>
+      </div>
+
+      <div class="seg">
+        <div class="seg__it">算总价</div>
+        <div class="seg__it is-on">预算反推</div>
+      </div>
+
+      <div class="mcard">
+        <div class="mcard__main">
+          <div class="mcard__title">会员价 6.8 折</div>
+          <div class="mcard__desc">菜金已按折后价计算，锅底调料饮料不打折</div>
+        </div>
+        <div class="sw" id="sw2"></div>
+      </div>
+
+      <div class="card">
+        <div class="card__title">目标实付金额</div>
+        <div class="card__hint">锅底与调料先扣掉，剩下的钱用来配盘子</div>
+        <div class="field"><div class="field__box"><span class="field__unit is-pre">¥</span><input class="field__input" id="target" type="number" value="300"></div></div>
+        <div class="grp grp--two">
+          <div class="grp__it"><div class="grp__k">容差（±元）</div><div class="grp__in-box"><input class="grp__in" id="tol" type="number" value="20"><span class="grp__u">元</span></div></div>
+          <div class="grp__it"><div class="grp__k">搭配偏好</div><div class="grp__pick" id="prefer">无偏好</div></div>
+        </div>
+        <div class="grp">
+          <div class="grp__it"><div class="grp__k">用餐人数</div><div class="grp__in-box"><input class="grp__in" id="people2" type="number" value="4"><span class="grp__u">人</span></div></div>
+          <div class="grp__it"><div class="grp__k">普通锅底 · 12/份</div><div class="grp__in-box"><input class="grp__in" id="potNormal2" type="number" value="4"><span class="grp__u">份</span></div></div>
+        </div>
+        <div class="card__hint" id="fixedHint">固定费用：锅底 + 调料共 ¥64</div>
+      </div>
+
+      <div class="btn btn--main">算合理组合</div>
+      <div id="combos"></div>
+      <div class="hintline">每色至少 1 盘；最贵色不超过最便宜色的 3 倍，避免全是贵盘</div>
+    </div></div>
+  </div>
+
+  <!-- 说明 -->
+  <div class="col">
+    <p class="cap">计价口径（2026-10 上网核实）</p>
+    <div class="note">
+      <b>色盘定价法</b>，只有菜金打折，锅底 / 调料 / 饮料不打折。
+      <table class="t">
+        <tr><th>盘色</th><th>原价</th><th>6.8 折</th><th>装什么</th></tr>
+        <tr><td>绿盘</td><td>5</td><td>3.4</td><td>青菜</td></tr>
+        <tr><td>黄盘</td><td>10</td><td>6.8</td><td>肉类</td></tr>
+        <tr><td>红盘</td><td>15</td><td>10.2</td><td>肉类</td></tr>
+        <tr><td>铁盘</td><td>22</td><td>14.96</td><td>海鲜</td></tr>
+      </table>
+      锅底 <b>12 元/份</b> 统一价、清汤 <b>6 元/份</b>；调料纸巾 <b>4 元/人</b>。
+      会员折扣为 <b>6.8 折</b>（扫码入群），折后价与大众点评实拍一致（铁盘 15 / 红盘 10 / 黄盘 6.8 / 绿盘 3.5 的零星出入属四舍五入）。
+    </div>
+    <div class="note">
+      <b>预算反推的约束</b><br>
+      · 每色至少 1 盘（不然不算一顿正经火锅）；<br>
+      · 某一色 ＜ 最便宜色 × 3，避免「全铁盘没青菜」；<br>
+      · 容差默认 ±20 元，可调；<br>
+      · 搭配偏好（铁/红/黄/绿盘多）会优先选该色严格最多的组合，凑不出才放宽并提示。
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== 与 utils/zhufugui.js 同源的精简实现 ===== */
+const COLORS=[{key:'lv',name:'绿盘',tone:'lv',base:5,note:'青菜'},{key:'hu',name:'黄盘',tone:'hu',base:10,note:'肉类'},
+  {key:'ho',name:'红盘',tone:'ho',base:15,note:'肉类'},{key:'ti',name:'铁盘',tone:'ti',base:22,note:'海鲜'}];
+const RATE=0.68, POT_N=12, POT_C=6, SAUCE=4;
+const DRINKS=[['玻璃瓶',2],['可乐/雪碧/芬达',5],['双柚汁',6],['王老吉',6],['健力宝',6],['番石榴',6],['维他茶',6],['破独',6],
+  ['豆奶',7],['椰子水',7],['乌龙茶',7],['好望水',7],['小椰汁',7],['百威',8],['宋柚汁',8],['贝奇野菜',8],['鲜果蜂蜜水',8],
+  ['朝日',10],['喜力',10],['科罗娜',10],['福佳白',10],['蓝妹',10],['大椰汁',20]];
+const r2=n=>Math.round((Number(n)||0)*100)/100;
+const toInt=v=>Math.max(0,Math.floor(Number(v)||0));
+const unit=(c,m)=>m?r2(c.base*RATE):c.base;
+const table=m=>COLORS.map(c=>unit(c,m));
+
+let member=true;
+const plates={lv:2,hu:3,ho:2,ti:2};
+let drinks=[{idx:1,name:'可乐/雪碧/芬达',price:5,qty:2},{idx:-1,name:'',price:0,qty:0}];
+
+/* ===== 模式一渲染 ===== */
+function renderPlates(){
+  document.getElementById('plates').innerHTML=COLORS.map((c,i)=>`
+    <div class="prow">
+      <div class="prow__dot is-${c.tone}"></div>
+      <div class="prow__main"><div class="prow__name">${c.name}</div><div class="prow__note">${c.note}</div></div>
+      <div class="prow__unit">¥${table(member)[i]}</div>
+      <div class="stepper">
+        <div class="stepper__btn" data-k="${c.key}" data-s="-1">−</div>
+        <input class="stepper__in" type="number" data-k="${c.key}" value="${plates[c.key]}">
+        <div class="stepper__btn" data-k="${c.key}" data-s="1">+</div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('#plates .stepper__btn').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.k; plates[k]=Math.max(0,plates[k]+Number(b.dataset.s)); renderPlates(); calcTotal();
+  });
+  document.querySelectorAll('#plates .stepper__in').forEach(inp=>inp.oninput=()=>{
+    plates[inp.dataset.k]=toInt(inp.value); calcTotal();
+  });
+}
+function renderDrinks(){
+  document.getElementById('drinks').innerHTML=drinks.map((d,i)=>`
+    <div class="drow">
+      <div class="drow__sel ${d.name?'':'is-ph'}" data-i="${i}">${d.name||'选择饮料'}</div>
+      <div class="stepper"><div class="stepper__btn" data-i="${i}" data-s="-1">−</div>
+        <input class="stepper__in" value="${d.qty}" readonly>
+        <div class="stepper__btn" data-i="${i}" data-s="1">+</div></div>
+      ${drinks.length>1?`<div class="drow__del" data-i="${i}">✕</div>`:''}
+    </div>`).join('');
+  document.querySelectorAll('#drinks .drow__del').forEach(b=>b.onclick=()=>{
+    drinks.splice(Number(b.dataset.i),1); if(!drinks.length)drinks=[{idx:-1,name:'',price:0,qty:0}];
+    renderDrinks(); calcTotal();
+  });
+  document.querySelectorAll('#drinks .stepper__btn').forEach(b=>b.onclick=()=>{
+    const i=Number(b.dataset.i); drinks[i].qty=Math.max(0,drinks[i].qty+Number(b.dataset.s)); renderDrinks(); calcTotal();
+  });
+  document.querySelectorAll('#drinks .drow__sel').forEach(b=>b.onclick=()=>{
+    const i=Number(b.dataset.i);
+    const pick=prompt('输入饮料名称（如：百威 / 大椰汁 / 豆奶）', drinks[i].name||'百威');
+    if(pick===null)return;
+    const hit=DRINKS.find(d=>d[0]===pick.trim())||DRINKS.find(d=>d[0].includes(pick.trim()));
+    if(!hit){alert('价目表里没有这款：'+pick);return;}
+    drinks[i].name=hit[0]; drinks[i].price=hit[1]; drinks[i].idx=DRINKS.indexOf(hit);
+    if(drinks[i].qty<1)drinks[i].qty=1;
+    renderDrinks(); calcTotal();
+  });
+}
+function calcTotal(){
+  const people=toInt(document.getElementById('people').value);
+  const pn=toInt(document.getElementById('potNormal').value);
+  const pc=toInt(document.getElementById('potClear').value);
+  const items=COLORS.map(c=>({...c,qty:plates[c.key],unit:unit(c,member),sum:r2(plates[c.key]*unit(c,member))})).filter(x=>x.qty>0);
+  const dishRaw=COLORS.reduce((s,c)=>s+plates[c.key]*c.base,0);
+  const dishPay=r2(items.reduce((s,x)=>s+x.sum,0));
+  const saved=r2(dishRaw-dishPay);
+  const potSum=r2(pn*POT_N+pc*POT_C), sauceSum=r2(people*SAUCE);
+  const dl=drinks.filter(d=>d.qty>0).map(d=>({...d,sum:r2(d.qty*d.price)}));
+  const drinkSum=r2(dl.reduce((s,d)=>s+d.sum,0));
+  const total=r2(dishPay+potSum+sauceSum+drinkSum);
+  const empty=!items.length&&!dl.length&&!pn&&!pc;
+  const per=people>0?r2(total/people):0;
+
+  const box=document.getElementById('result');
+  if(empty){box.innerHTML='<div class="card" style="text-align:center;color:#8C9A94;font-size:14px;padding:26px 16px">填上人数、锅底和盘子数量，这里出账</div>';return;}
+  box.innerHTML=`<div class="card card--sum">
+    <div class="sum"><div class="sum__k">应付合计</div><div class="sum__v">¥${total}</div>
+      ${per>0?`<div class="sum__per">人均 ¥${per}</div>`:''}</div>
+    <div class="bill">
+      ${dishRaw>0?`<div class="bill__row"><span class="bill__k">菜金${member?'（折前）':''}</span><span class="bill__v">¥${r2(dishRaw)}</span></div>`:''}
+      ${member&&saved>0?`<div class="bill__row is-save"><span class="bill__k">会员省下</span><span class="bill__v">−¥${saved}</span></div>`:''}
+      <div class="bill__row"><span class="bill__k">锅底 ${pn}${pc?' + 清汤 '+pc:''} 份</span><span class="bill__v">¥${potSum}</span></div>
+      <div class="bill__row"><span class="bill__k">调料 ${people} 人</span><span class="bill__v">¥${sauceSum}</span></div>
+      ${drinkSum>0?`<div class="bill__row"><span class="bill__k">饮料</span><span class="bill__v">¥${drinkSum}</span></div>`:''}
+    </div>
+    ${items.length?`<div class="detail">${items.map(x=>`<div class="detail__row"><span class="detail__k">${x.name} ×${x.qty}</span><span class="detail__v">¥${x.sum}</span></div>`).join('')}</div>`:''}
+  </div>`;
+}
+
+/* ===== 模式二 ===== */
+function fixedCost(){
+  const people=toInt(document.getElementById('people2').value);
+  const pn=toInt(document.getElementById('potNormal2').value);
+  return r2(pn*POT_N+people*SAUCE);
+}
+function suggest(){
+  const target=Number(document.getElementById('target').value)||0;
+  const tol=toInt(document.getElementById('tol').value)||0;
+  const people=toInt(document.getElementById('people2').value);
+  const pn=toInt(document.getElementById('potNormal2').value);
+  const fixed=fixedCost(), dishBudget=r2(target-fixed);
+  document.getElementById('fixedHint').textContent=`固定费用：锅底 + 调料共 ¥${fixed}`;
+  const box=document.getElementById('combos');
+  if(target<=0){box.innerHTML='';return;}
+  if(dishBudget<=0){box.innerHTML='<div class="tip">目标金额偏低，扣掉锅底和调料就没剩了，请提高目标</div>';return;}
+  const prices=table(member);
+  const maxEach=Math.min(60,Math.max(8,people*6));
+  const cands=[];
+  for(let lv=1;lv<=maxEach;lv++){ if(lv*prices[0]>dishBudget+tol)break;
+    for(let hu=1;hu<=maxEach;hu++){ if(lv*prices[0]+hu*prices[1]>dishBudget+tol)break;
+      for(let ho=1;ho<=maxEach;ho++){ if(lv*prices[0]+hu*prices[1]+ho*prices[2]>dishBudget+tol)break;
+        for(let ti=1;ti<=maxEach;ti++){ const sum=r2(lv*prices[0]+hu*prices[1]+ho*prices[2]+ti*prices[3]);
+          if(sum>dishBudget+tol)break;
+          const mx=Math.max(lv,hu,ho,ti),mn=Math.min(lv,hu,ho,ti);
+          if(mx>mn*3)continue;
+          const diff=r2(Math.abs(sum-dishBudget)); if(diff>tol)continue;
+          cands.push({lv,hu,ho,ti,sum,total:r2(fixed+sum),diff,totalPlates:lv+hu+ho+ti});
+        }}}}
+  if(!cands.length){box.innerHTML='<div class="tip">凑不出范围内组合，可放宽容差或调整目标</div>';return;}
+  cands.sort((a,b)=>a.diff-b.diff||a.sum-b.sum);
+  const seen=new Set(),rows=[];
+  for(const c of cands){const k=`${c.lv},${c.hu},${c.ho},${c.ti}`;if(seen.has(k))continue;seen.add(k);rows.push(c);if(rows.length>=3)break;}
+  box.innerHTML=rows.map(c=>{
+    const bc=COLORS.map((col,i)=>({name:col.name,tone:col.tone,qty:[c.lv,c.hu,c.ho,c.ti][i]}));
+    return `<div class="combo">
+      <div class="combo__head"><div class="combo__total">¥${c.total}</div>
+        <div class="combo__tag ${c.diff===0?'is-hit':''}">${c.diff===0?'正中目标':'差 ¥'+c.diff}</div></div>
+      <div class="combo__plates">${bc.map(x=>`<div class="cpill is-${x.tone}"><span class="cpill__n">${x.name}</span><span class="cpill__q">×${x.qty}</span></div>`).join('')}</div>
+      <div class="combo__foot"><span class="combo__sum">共 ${c.totalPlates} 盘，菜金 ¥${c.sum}</span>
+        <div class="combo__use">填入左侧</div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ===== 绑定 ===== */
+document.getElementById('sw').onclick=function(){
+  member=!member; this.classList.toggle('is-off',!member);
+  document.getElementById('sw2').classList.toggle('is-off',!member);
+  document.getElementById('mdesc').textContent=member?'菜金已按折后价计算，锅底调料饮料不打折':'按菜牌原价计算，未打折';
+  renderPlates(); calcTotal(); suggest();
+};
+document.getElementById('sw2').onclick=()=>document.getElementById('sw').onclick();
+document.getElementById('addDrink').onclick=()=>{drinks.push({idx:-1,name:'',price:0,qty:0});renderDrinks();};
+['people','potNormal','potClear'].forEach(id=>document.getElementById(id).oninput=calcTotal);
+['people2','potNormal2'].forEach(id=>document.getElementById(id).oninput=()=>{suggest();});
+['target','tol'].forEach(id=>document.getElementById(id).oninput=suggest);
+document.getElementById('prefer').onclick=function(){
+  const opts=['无偏好','铁盘多','红盘多','黄盘多','绿盘多'];
+  const cur=opts.indexOf(this.textContent);
+  this.textContent=opts[(cur+1)%opts.length];
+};
+renderPlates(); renderDrinks(); calcTotal(); suggest();
+</script>
+</body></html>

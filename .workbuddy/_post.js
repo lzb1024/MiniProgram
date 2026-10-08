@@ -4,11 +4,13 @@
 const cp = require('child_process');
 const fs = require('fs');
 
+const path = require('path');
 const NODE = process.execPath;
-const ROOT = 'D:/LZB/LIN';
-const SKILL = 'C:/Users/Administrator/.workbuddy/skills/miniprogram-theme-retrofit/scripts';
+// 项目根目录 = 本脚本所在目录的上一级（.workbuddy/..），换机器/换路径都不用改
+const ROOT = path.resolve(__dirname, '..');
+const SKILL = 'C:/Users/LZB/.workbuddy/skills/miniprogram-theme-retrofit/scripts';
 const env = Object.assign({}, process.env, {
-  NODE_PATH: 'C:/Users/Administrator/.workbuddy/binaries/node/workspace/node_modules',
+  NODE_PATH: 'C:/Users/LZB/.workbuddy/binaries/node/workspace/node_modules',
 });
 
 const steps = [

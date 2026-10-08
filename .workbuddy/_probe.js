@@ -1,13 +1,14 @@
 // 探针：找 less 装在哪
 const fs = require('fs');
 const path = require('path');
+const ROOT = path.resolve(__dirname, '..');
 const out = [];
 const cands = [
-  'C:/Users/Administrator/.workbuddy/binaries/node/workspace',
-  'C:/Users/Administrator/.workbuddy/binaries/node/workspace/node_modules',
-  'C:/Users/Administrator/.workbuddy/binaries/node',
-  'D:/LZB/LIN/node_modules',
-  'D:/LZB/LIN',
+  'C:/Users/LZB/.workbuddy/binaries/node/workspace',
+  'C:/Users/LZB/.workbuddy/binaries/node/workspace/node_modules',
+  'C:/Users/LZB/.workbuddy/binaries/node',
+  ROOT + '/node_modules',
+  ROOT,
 ];
 for (const c of cands) {
   out.push(`${c}  exists=${fs.existsSync(c)}`);
@@ -36,6 +37,6 @@ function find(dir, depth, hits) {
   }
 }
 const hits = [];
-find('C:/Users/Administrator/.workbuddy/binaries/node', 5, hits);
+find('C:/Users/LZB/.workbuddy/binaries/node', 5, hits);
 out.push('LESS HITS:\n' + hits.join('\n'));
-fs.writeFileSync('D:/LZB/LIN/.workbuddy/_out-probe.txt', out.join('\n'), 'utf8');
+fs.writeFileSync(path.join(ROOT, '.workbuddy', '_out-probe.txt'), out.join('\n'), 'utf8');

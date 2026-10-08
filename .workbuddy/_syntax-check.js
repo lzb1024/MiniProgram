@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const ROOT = 'D:/LZB/LIN';
+// 项目根目录 = 本脚本所在目录的上一级（.workbuddy/..），换机器/换路径都不用改
+const ROOT = path.resolve(__dirname, '..');
 const TMP = path.join(ROOT, '.workbuddy', '_syntax');
 fs.mkdirSync(TMP, { recursive: true });
 
@@ -22,6 +23,10 @@ const files = process.argv.slice(2).length
       // pages/index 是综合版新增的行程列表页，别漏
       'pages/index/index.js',
       'pages/home/index.js',
+      // 常用工具：麻将记分（2026-10-08 加）
+      'pages/mahjong/index.js',
+      'pages/tools/index.js',
+      'utils/mahjong.js',
       'preview/_gen-1home.js',
     ];
 

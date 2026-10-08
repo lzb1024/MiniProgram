@@ -1,6 +1,9 @@
 // 数 1-home.html 片段里的关键内容出现次数，与已知期望对账
 const fs = require('fs');
-const html = fs.readFileSync('D:/LZB/LIN/preview/_screens/1-home.html', 'utf8');
+const path = require('path');
+// 项目根目录 = 本脚本所在目录的上一级（.workbuddy/..）
+const ROOT = path.resolve(__dirname, '..');
+const html = fs.readFileSync(path.join(ROOT, 'preview', '_screens', '1-home.html'), 'utf8');
 function count(re) {
   return (html.match(re) || []).length;
 }

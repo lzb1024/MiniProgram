@@ -1,7 +1,20 @@
 {
-  "pages": ["pages/index/index", "pages/home/index"],
-  "usingComponents": {
-    "t-toast": "tdesign-miniprogram/toast/toast"
+  "pages": ["pages/index/index", "pages/tools/index", "pages/mahjong/index", "pages/zhufugui/index", "pages/home/index"],
+  "tabBar": {
+    "color": "#8C9A94",
+    "selectedColor": "#1E6B5A",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "旅行攻略"
+      },
+      {
+        "pagePath": "pages/tools/index",
+        "text": "常用工具"
+      }
+    ]
   },
   "window": {
     "backgroundTextStyle": "dark",

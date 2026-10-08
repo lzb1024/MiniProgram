@@ -1,0 +1,165 @@
+// pages/tools/index.less — 常用工具页（tab2）
+//
+// 风格与 pages/index 保持一致：纸白底、卡片实色、三色语义
+//（青绿=强调 / 雪峰蓝=信息）。颜色尺寸只走 variable.less 令牌，不硬编码。
+@import '../../variable.less';
+
+.tools {
+  min-height: 100vh;
+  background: @bg;
+  padding: 0 @page-pad;
+  box-sizing: border-box;
+
+  /* 顶部留白：状态栏由 wxml inline style 给，这里只留呼吸位 */
+  &__top {
+    flex: none;
+  }
+
+  &__head {
+    padding: 8rpx 0 @gap;
+  }
+
+  &__kicker {
+    display: flex;
+    align-items: center;
+    font-size: @font-size-small;
+    color: @text-dim;
+    letter-spacing: 1rpx;
+  }
+
+  &__dot {
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: @pine;
+    margin-right: 12rpx;
+    flex: none;
+  }
+
+  /* 标题走衬线，与列表页 / 详情页的观感一致 */
+  &__title {
+    margin-top: 10rpx;
+    font-size: 52rpx;
+    line-height: 1.2;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+
+  &__sub {
+    margin-top: 8rpx;
+    font-size: @body-small;
+    color: @text-faint;
+  }
+
+  &__foot {
+    margin-top: 56rpx;
+    padding: 28rpx 0 8rpx;
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &__foot-p {
+    font-size: @font-size-mini;
+    line-height: 1.7;
+    color: @text-faint;
+  }
+
+  /* 底部留白：tabBar 已占掉一块，这里只留安全区的余量 */
+  &__bottom {
+    height: calc(40rpx + env(safe-area-inset-bottom));
+  }
+}
+
+/* ============ 工具卡 ============ */
+/* 2026-10-08：工具只剩一个，原来的「分组」层已拆掉，卡片直接装工具行 */
+.tgroup {
+  background: @card;
+  border: 1rpx solid @border;
+  border-radius: @radius;
+  box-shadow: @shadow-sm;
+  overflow: hidden;
+
+  &__body {
+    padding: 8rpx @page-pad;
+  }
+}
+
+/* ============ 工具行 ============ */
+.trow {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 30rpx 0;
+
+  /* 行之间用细线分隔，最后一行不留线 */
+  & + & {
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
+  &__icon {
+    flex: none;
+    width: 72rpx;
+    height: 72rpx;
+    border-radius: @radius-sm;
+    background: @pine-soft;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__main {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 34rpx;
+    color: @text;
+    .fg-display();
+
+    font-weight: 600;
+  }
+
+  &__desc {
+    margin-top: 6rpx;
+    font-size: @font-size-mini;
+    color: @text-faint;
+  }
+
+  &__go {
+    flex: none;
+    display: flex;
+    align-items: center;
+
+    /* 未完成的工具：整体压灰 + 显示「待做」 */
+    &.is-soon {
+      .trow__go-t {
+        color: @text-faint;
+      }
+
+      .trow__arrow {
+        border-left-color: @text-faint;
+      }
+    }
+  }
+
+  &__go-t {
+    font-size: @font-size-mini;
+    color: @pine;
+  }
+
+  /* 箭头：纯 CSS 三角，不引图标组件 */
+  &__arrow {
+    width: 0;
+    height: 0;
+    margin-left: 10rpx;
+    border-top: 7rpx solid transparent;
+    border-bottom: 7rpx solid transparent;
+    border-left: 11rpx solid @text-faint;
+  }
+}

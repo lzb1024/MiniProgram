@@ -8,8 +8,9 @@
  * 全部按文本精确匹配，任何一处对不上就整体报错退出、不落盘。
  */
 const fs = require('fs');
+const path = require('path');
 
-const F = 'D:/LZB/LIN/mock/home/getTrip.js';
+const F = path.join(path.resolve(__dirname, '..'), 'mock/home/getTrip.js');
 const orig = fs.readFileSync(F, 'utf8');
 let s = orig;
 

@@ -124,7 +124,8 @@ Page({
   onTapTrip(e) {
     const { id } = e.currentTarget.dataset;
     if (!id) return;
-    // 没有 tabBar，navigateTo 正常工作；详情页里不需要再回列表（原生返回即可）
+    // 详情页是普通页（非 tab），navigateTo 照常可用；
+    // 注意本页自身已是 tab 页，切到别的 tab 必须用 switchTab（且不能带参）
     wx.navigateTo({ url: `/pages/home/index?trip=${id}` });
   },
 });

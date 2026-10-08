@@ -1,0 +1,30 @@
+OK   avatar1.png  (6757 bytes)
+OK   bg_navbar.png  (23358 bytes)
+OK   bg_navbar2.png  (35063 bytes)
+OK   icon_doc.png  (4175 bytes)
+OK   icon_map.png  (7911 bytes)
+OK   icon_qq.png  (6479 bytes)
+OK   icon_td.png  (13219 bytes)
+OK   icon_wx.png  (6185 bytes)
+OK   image1.png  (47390 bytes)
+OK   image2.png  (43889 bytes)
+OK   img_td.png  (76638 bytes)
+OK   chat/avatar.png  (8151 bytes)
+OK   chat/avatar-Andrew.png  (5649 bytes)
+OK   chat/avatar-Kingdom.png  (5315 bytes)
+OK   chat/avatar-Mollymolly.png  (6004 bytes)
+OK   chat/avatar-Paige.png  (7019 bytes)
+OK   chat/avatar-Sean.png  (6153 bytes)
+OK   home/card0.png  (47390 bytes)
+OK   home/card1.png  (43889 bytes)
+OK   home/card2.png  (42533 bytes)
+OK   home/card3.png  (29862 bytes)
+OK   home/card4.png  (40512 bytes)
+目录 static/chat 剩余 0 项: 
+  已删除空目录 static/chat
+目录 static/home 剩余 1 项: swiper0.png
+
+=== static 剩余内容 ===
+  home/swiper0.png  (65100 bytes)
+
+汇总: 备份 22 / 删除 22 / 失败 0
