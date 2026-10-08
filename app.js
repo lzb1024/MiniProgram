@@ -2,7 +2,7 @@
 import config from './config';
 import Mock from './mock/index';
 import createBus from './utils/eventBus';
-import { connectSocket, fetchUnreadNum } from './mock/chat';
+import { ensureCloud } from './utils/cloud';
 
 if (config.isMock) {
   Mock();
@@ -10,6 +10,9 @@ if (config.isMock) {
 
 App({
   onLaunch() {
+    // 云开发：config.js 里没填环境 ID 时会静默跳过，不影响本地 mock 数据
+    ensureCloud();
+
     const updateManager = wx.getUpdateManager();
 
     updateManager.onCheckForUpdate((res) => {
@@ -27,40 +30,11 @@ App({
         },
       });
     });
-
-    this.getUnreadNum();
-    this.connect();
   },
   globalData: {
     userInfo: null,
-    unreadNum: 0, // 未读消息数量
-    socket: null, // SocketTask 对象
   },
 
   /** 全局事件总线 */
   eventBus: createBus(),
-
-  /** 初始化WebSocket */
-  connect() {
-    const socket = connectSocket();
-    socket.onMessage((data) => {
-      data = JSON.parse(data);
-      if (data.type === 'message' && !data.data.message.read) this.setUnreadNum(this.globalData.unreadNum + 1);
-    });
-    this.globalData.socket = socket;
-  },
-
-  /** 获取未读消息数量 */
-  getUnreadNum() {
-    fetchUnreadNum().then(({ data }) => {
-      this.globalData.unreadNum = data;
-      this.eventBus.emit('unread-num-change', data);
-    });
-  },
-
-  /** 设置未读消息数量 */
-  setUnreadNum(unreadNum) {
-    this.globalData.unreadNum = unreadNum;
-    this.eventBus.emit('unread-num-change', unreadNum);
-  },
 });

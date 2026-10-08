@@ -1,0 +1,8 @@
+{
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "腾讯位置服务天气接口中转，Key 只留在云端",
+  "main": "index.js",
+  "private": true,
+  "dependencies": {}
+}
