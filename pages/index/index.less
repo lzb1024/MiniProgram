@@ -1,0 +1,266 @@
+// pages/index/index.less — 行程列表页（综合版小程序的新首页）
+//
+// 风格沿用首页那套「山野手账」：纸白底、卡片实色、三色语义
+//（青绿=强调 / 雪峰蓝=信息 / 陶土棕=价格与交通）。
+// 颜色与尺寸只走 variable.less 的令牌，不硬编码。
+@import '../../variable.less';
+
+.plans {
+  min-height: 100vh;
+  background: @bg;
+  padding: 0 @page-pad;
+  box-sizing: border-box;
+
+  /* 顶部留白：状态栏高度由 wxml  inline style 给，这里只留呼吸位 */
+  &__top {
+    flex: none;
+  }
+
+  &__head {
+    padding: 8rpx 0 @gap;
+  }
+
+  &__kicker {
+    display: flex;
+    align-items: center;
+    font-size: @font-size-small;
+    color: @text-dim;
+    letter-spacing: 1rpx;
+  }
+
+  &__dot {
+    width: 10rpx;
+    height: 10rpx;
+    border-radius: 50%;
+    background: @pine;
+    margin-right: 12rpx;
+    flex: none;
+  }
+
+  /* 标题走衬线，与首页 Hero 的观感一致 */
+  &__title {
+    margin-top: 10rpx;
+    font-size: 52rpx;
+    line-height: 1.2;
+    color: @text;
+    font-family: 'Songti SC', 'Noto Serif SC', serif;
+    font-weight: 600;
+  }
+
+  &__sub {
+    margin-top: 8rpx;
+    font-size: @body-small;
+    color: @text-faint;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: @gap;
+  }
+}
+
+/* ============ 行程卡片 ============ */
+.pcard {
+  position: relative;
+  background: @card;
+  border: 1rpx solid @border;
+  border-radius: @radius;
+  overflow: hidden;
+  box-shadow: @shadow-sm;
+
+  &:active {
+    transform: scale(0.988);
+  }
+
+  /* 封面区：现在还没配真实封面图，先用青绿渐变打底，
+     以后放了图这层渐变仍然留着当压暗层，文字照样读得清 */
+  &__cover {
+    position: relative;
+    height: 260rpx;
+    background: @grad-135;
+    overflow: hidden;
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* 压暗层：渐变到底，保证封面图上的白字读得清 */
+  &__veil {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(20, 80, 63, 0.15) 0%, rgba(20, 80, 63, 0.62) 100%);
+  }
+
+  &__badge {
+    position: absolute;
+    left: 20rpx;
+    top: 20rpx;
+    padding: 6rpx 18rpx;
+    border-radius: @radius-pill;
+    background: @on-image-chip;
+    color: @pine-deep;
+    font-size: @font-size-mini;
+    font-weight: 600;
+  }
+
+  &__count {
+    position: absolute;
+    right: 24rpx;
+    bottom: 20rpx;
+    color: #ffffff;
+    font-size: 40rpx;
+    font-weight: 600;
+    text-shadow: 0 2rpx 8rpx rgba(20, 80, 63, 0.45);
+  }
+
+  &__body {
+    padding: 24rpx @page-pad 26rpx;
+  }
+
+  &__kicker {
+    font-size: @font-size-mini;
+    color: @text-faint;
+    letter-spacing: 1rpx;
+  }
+
+  &__title {
+    margin-top: 6rpx;
+    font-size: 38rpx;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__sub {
+    margin-top: 6rpx;
+    font-size: @body-small;
+    color: @text-dim;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+    margin-top: 18rpx;
+  }
+
+  &__chip {
+    padding: 6rpx 16rpx;
+    border-radius: @radius-pill;
+    background: @card-strong;
+    border: 1rpx solid @border-soft;
+  }
+
+  &__chip-t {
+    font-size: @font-size-mini;
+    color: @text-dim;
+  }
+
+  &__go {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 18rpx;
+  }
+
+  &__go-t {
+    font-size: @font-size-small;
+    color: @pine;
+    font-weight: 600;
+  }
+
+  /* 箭头：纯 CSS 三角，不引图标组件 */
+  &__go-arrow {
+    width: 0;
+    height: 0;
+    margin-left: 10rpx;
+    border-top: 7rpx solid transparent;
+    border-bottom: 7rpx solid transparent;
+    border-left: 11rpx solid @pine;
+  }
+
+  /* 状态配色：进行中用青绿（强调），即将出发用雪峰蓝（信息），
+     已结束整体压灰 —— 三色语义别串味 */
+  &.is-now {
+    .pcard__count {
+      color: @pine;
+    }
+  }
+
+  &.is-soon {
+    .pcard__count {
+      color: @sky;
+    }
+  }
+
+  &.is-done {
+    .pcard__cover {
+      background: linear-gradient(135deg, #b9c2bc, #9aa8a2);
+    }
+    .pcard__veil {
+      background: linear-gradient(180deg, rgba(90, 107, 102, 0.18) 0%, rgba(90, 107, 102, 0.58) 100%);
+    }
+    .pcard__title,
+    .pcard__chip-t {
+      color: @text-faint;
+    }
+    .pcard__go-t,
+    .pcard__go-arrow {
+      color: @text-faint;
+      border-left-color: @text-faint;
+    }
+  }
+}
+
+/* ============ 空态 / 加载 ============ */
+.plans {
+  &__empty {
+    padding: 120rpx 0;
+    text-align: center;
+  }
+
+  &__empty-t {
+    font-size: @body-large;
+    color: @text-dim;
+  }
+
+  &__empty-s {
+    margin-top: 8rpx;
+    font-size: @body-small;
+    color: @text-faint;
+  }
+
+  &__loading {
+    padding: 120rpx 0;
+    text-align: center;
+    font-size: @body-small;
+    color: @text-faint;
+  }
+
+  /* ============ 页脚 ============ */
+  &__foot {
+    margin-top: 56rpx;
+    padding: 28rpx 0 8rpx;
+    border-top: 1rpx solid @border-soft;
+    display: flex;
+    flex-direction: column;
+    gap: 8rpx;
+  }
+
+  &__foot-p {
+    font-size: @font-size-mini;
+    line-height: 1.7;
+    color: @text-faint;
+  }
+
+  /* 底部留白：给 iOS _home指示条_ 与安全区 */
+  &__bottom {
+    height: calc(60rpx + env(safe-area-inset-bottom));
+  }
+}

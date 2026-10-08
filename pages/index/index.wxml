@@ -1,0 +1,71 @@
+<view class="plans">
+  <!-- 顶部留白：只让状态栏 + 呼吸位。右上角胶囊浮在这条竖直带里，
+       这页没有吸顶条，标题往下挪一点就避开了，不用像首页那样按胶囊下沿算 -->
+  <view class="plans__top" style="height:{{ statusTop }}px"></view>
+
+  <view class="plans__head" wx:if="{{ hero }}">
+    <view class="plans__kicker">
+      <view class="plans__dot"></view>
+      <text>{{ hero.kicker }}</text>
+    </view>
+    <view class="plans__title">{{ hero.title }}</view>
+    <view class="plans__sub">{{ hero.subtitle }}</view>
+  </view>
+
+  <view class="plans__list" wx:if="{{ trips.length }}">
+    <view
+      class="pcard is-{{ item.state }}"
+      wx:for="{{ trips }}"
+      wx:key="id"
+      data-id="{{ item.id }}"
+      bindtap="onTapTrip"
+    >
+      <view class="pcard__cover">
+        <image class="pcard__img" src="{{ item.cover }}" mode="aspectFill" />
+        <!-- 封面图是 static 下的占位图时（现在还没配图），给一层青绿渐变兜底，
+             不然整块会是一条灰白空槽 -->
+        <view class="pcard__veil"></view>
+        <view class="pcard__badge">{{ item.badge }}</view>
+        <view class="pcard__count" wx:if="{{ item.countText }}">{{ item.countText }}</view>
+      </view>
+
+      <view class="pcard__body">
+        <view class="pcard__kicker">{{ item.kicker }}</view>
+        <view class="pcard__title">{{ item.title }}</view>
+        <view class="pcard__sub">{{ item.subtitle }}</view>
+
+        <view class="pcard__meta">
+          <view class="pcard__chip">
+            <text class="pcard__chip-t">{{ item.rangeText }}</text>
+          </view>
+          <view class="pcard__chip">
+            <text class="pcard__chip-t">{{ item.span }} 天</text>
+          </view>
+          <view class="pcard__chip" wx:if="{{ item.daysText }}">
+            <text class="pcard__chip-t">{{ item.daysText }}</text>
+          </view>
+        </view>
+
+        <view class="pcard__go">
+          <text class="pcard__go-t">查看攻略</text>
+          <view class="pcard__go-arrow"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 加载中与空列表都要有交代，否则白屏看不出是还没好还是真没有 -->
+  <view class="plans__empty" wx:if="{{ !loading && !trips.length }}">
+    <view class="plans__empty-t">还没有行程</view>
+    <view class="plans__empty-s">下拉可以刷新</view>
+  </view>
+  <view class="plans__loading" wx:if="{{ loading }}">读取中…</view>
+
+  <!-- 页脚用本页自己的类名，不用首页那个 .foot（跨页面复用同名 class
+       在浅色实色背景下容易撞车，各自一份互不干扰） -->
+  <view class="plans__foot" wx:if="{{ footer.length }}">
+    <text class="plans__foot-p" wx:for="{{ footer }}" wx:key="*this">{{ item }}</text>
+  </view>
+
+  <view class="plans__bottom"></view>
+</view>
