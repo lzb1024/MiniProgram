@@ -1,30 +1,23 @@
-@import '/variable.less';
+@import '../../variable.less';
 
-.home-navbar {
+.nav {
+  .fg-theme();
+
+  position: relative;
+  // 高于首页吸顶导航（.toc 是 30）：吸顶条为了越过右上角胶囊按钮，顶部留白加大后
+  // 靠负 margin 抵消，静止时它的垫底填充区会顶进导航栏这一段，让导航栏盖在上面。
+  z-index: 31;
+
+  &__bar {
+    background: rgba(247, 245, 239, 0.86);
+    backdrop-filter: blur(20rpx);
+    -webkit-backdrop-filter: blur(20rpx);
+    border-bottom: 1rpx solid @border-soft;
+  }
+
   .t-navbar {
     &__left {
-      margin-left: 12rpx;
+      margin-left: 8rpx;
     }
   }
-
-  &__icon {
-    padding: 12rpx;
-  }
-
-  &__left {
-    display: flex;
-    align-items: center;
-    padding: 0 16rpx;
-
-    .t-search {
-      --td-search-height: 64rpx;
-      --td-search-font-size: @font-size-mini;
-      width: 375rpx;
-
-      .t-icon {
-        font-size: @font-size-default !important;
-      }
-    }
-  }
-  --td-drawer-title-font-size: 48rpx;
 }

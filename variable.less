@@ -1,23 +1,311 @@
+// ============================================================
+//  设计令牌 · 山野手账（浅色，单主题）
+//  基准来源：川西九日攻略页 chuanxi-site/index.html 的 :root
+//  纸白 #F7F5EF 底 ＋ 青绿 #1E6B5A 主导 ＋ 雪峰蓝 #2E6E95 信息
+//  ＋ 陶土棕 #B4552D 交通与价格
+// ============================================================
+
 // common
 @navbar-padding-top: 20px;
 @nav-bar-height: 60px;
-@tab-bar-height: 112rpx;
 
 // font-size
 @font-size-default: 16px;
 @font-size-small: 14px;
 @font-size-mini: 12px;
-
-// color
-@bg-color: #f3f3f3;
-@bg-color-white: #ffffff;
-
-@brand7-normal: #0052d9;
-@gy1: #000000e6;
-@gy2: #00000099;
-@gy3: #00000066;
-@gray3: #e7e7e7;
-
 @headline-medium: 28px;
 @body-large: 16px;
 @body-small: 12px;
+
+// ---------- 基础色 ----------
+@bg: #f7f5ef; // 纸白底
+@bg-deep: #efece1; // 再深一档的纸色，用于分区底
+@bg-panel: #ffffff; // 面板 / 弹层（浅色主题必须实色）
+@card: #ffffff; // 卡片
+@card-strong: #fbfaf6; // 卡片上的次级块
+@border: #e4e1d5; // 主描边
+@border-soft: #eeece2; // 细线
+@on-image-chip: rgba(255, 255, 255, 0.92); // 压在封面图上的半透明徽标（唯一允许的纯白半透明）
+@text: #22302e; // 墨绿黑正文
+@text-dim: #5a6b66; // 次级文字
+@text-faint: #8c9a94; // 弱化文字
+
+// ---------- 三色语义（换肤时别串味）----------
+// 青绿 = 强调 / 必玩点 / 主按钮；雪峰蓝 = 天气 / 信息；陶土棕 = 交通 / 价格
+@pine: #1e6b5a;
+@pine-deep: #14503f;
+@pine-soft: #e3efe9;
+@sky: #2e6e95;
+@sky-soft: #e4edf3;
+@clay: #b4552d;
+@clay-soft: #f6eae1;
+@amber: #9a6b00;
+@amber-soft: #f7f0dd;
+
+// ---------- 渐变强调（青绿 → 雪峰蓝）----------
+@grad-a: #1e6b5a;
+@grad-b: #2e6e95;
+@grad: linear-gradient(90deg, #1e6b5a, #2e6e95);
+@grad-135: linear-gradient(135deg, #1e6b5a, #2e6e95);
+@accent: @pine; // 小标题 / 图标
+@accent-pink: @clay; // 名字沿用历史，值是陶土棕：价格 / 强调数字
+@accent-a-soft: rgba(30, 107, 90, 0.12);
+@accent-b-soft: rgba(46, 110, 149, 0.12);
+@grad-soft: linear-gradient(135deg, rgba(30, 107, 90, 0.18), rgba(46, 110, 149, 0.18));
+
+// ---------- 阴影（浅色主题靠阴影分层，不靠发光）----------
+@shadow-sm: 0 1rpx 4rpx rgba(34, 48, 46, 0.05), 0 4rpx 16rpx rgba(34, 48, 46, 0.04);
+@shadow-md: 0 4rpx 12rpx rgba(34, 48, 46, 0.06), 0 20rpx 56rpx rgba(34, 48, 46, 0.08);
+
+// ---------- 尺寸 ----------
+@radius: 28rpx; // 14px
+@radius-md: 24rpx; // 12px
+@radius-sm: 20rpx; // 10px
+@radius-pill: 999rpx;
+@gap: 24rpx;
+@page-pad: 32rpx;
+
+// ---------- 兼容旧变量名 ----------
+@bg-color: @bg;
+@bg-color-white: @card;
+@brand7-normal: @grad-a;
+@gy1: @text;
+@gy2: @text-dim;
+@gy3: @text-faint;
+@gray3: @border;
+
+// ============================================================
+//  混入：把 TDesign 主题变量挂到页面根节点，组件自动继承
+//  用法：在页面最外层 view 上调用 .fg-theme();
+//  浅色主题下这些映射必须是「浅底深字」，否则组件会残留深色
+// ============================================================
+.fg-theme() {
+  // 品牌色
+  --td-brand-color: @pine;
+  --td-brand-color-active: @pine-deep;
+  --td-brand-color-focus: rgba(30, 107, 90, 0.16);
+  --td-brand-color-disabled: rgba(30, 107, 90, 0.32);
+  --td-brand-color-light: @pine-soft;
+  --td-brand-color-light-active: #d6e8e1;
+
+  // 文字
+  --td-text-color-primary: @text;
+  --td-text-color-secondary: @text-dim;
+  --td-text-color-placeholder: @text-faint;
+  --td-text-color-disabled: #b9c2bc;
+  --td-text-color-anti: #ffffff;
+  --td-text-color-brand: @pine;
+  --td-text-color-link: @sky;
+
+  // 背景
+  --td-bg-color-page: @bg;
+  --td-bg-color-container: @card;
+  --td-bg-color-container-active: #f3f1e9;
+  --td-bg-color-secondarycontainer: @card-strong;
+  --td-bg-color-secondarycontainer-active: #f4f2ea;
+  --td-bg-color-component: @card-strong;
+  --td-bg-color-component-active: #f1eee5;
+  --td-bg-color-component-disabled: #f6f4ee;
+  --td-bg-color-secondarycomponent: #f4f2ea;
+  --td-bg-color-specialcomponent: @card;
+
+  // 描边
+  --td-border-level-1-color: @border;
+  --td-border-level-2-color: #d9d5c7;
+  --td-component-border: @border;
+  --td-component-stroke: @border;
+
+  // 灰度（浅色主题下是深字，别再用 rgba(255,255,255,x)）
+  --td-font-gray-1: rgba(34, 48, 46, 0.9);
+  --td-font-gray-2: rgba(34, 48, 46, 0.6);
+  --td-font-gray-3: rgba(34, 48, 46, 0.42);
+  --td-font-gray-4: rgba(34, 48, 46, 0.26);
+  --td-font-white-1: @text;
+  --td-font-white-2: rgba(34, 48, 46, 0.6);
+  --td-font-white-3: rgba(34, 48, 46, 0.4);
+  --td-font-white-4: rgba(34, 48, 46, 0.24);
+
+  // 遮罩
+  --td-mask-active: rgba(34, 48, 46, 0.45);
+  --td-mask-disabled: rgba(247, 245, 239, 0.6);
+
+  // 导航
+  --td-navbar-bg-color: transparent;
+  --td-navbar-color: @text;
+
+  // 单元格
+  --td-cell-bg-color: transparent;
+  --td-cell-border-color: @border-soft;
+  --td-cell-hover-color: #f3f1e9;
+  --td-cell-title-color: @text;
+  --td-cell-description-color: @text-dim;
+  --td-cell-note-color: @text-dim;
+  --td-cell-left-icon-color: @text-dim;
+  --td-cell-right-icon-color: @text-faint;
+  --td-cell-group-bg-color: transparent;
+  --td-cell-required-color: @clay;
+
+  // 搜索
+  --td-search-bg-color: @card-strong;
+  --td-search-text-color: @text;
+  --td-search-placeholder-color: @text-faint;
+  --td-search-icon-color: @text-dim;
+  --td-search-clear-icon-color: @text-faint;
+  --td-search-disabled-text-color: @text-faint;
+  --td-search-action-color: @pine;
+
+  // Tabs
+  --td-tab-item-color: @text-dim;
+  --td-tab-item-active-color: @pine;
+  --td-tab-item-disabled-color: @text-faint;
+  --td-tab-item-tag-bg: @card-strong;
+  --td-tab-item-tag-active-bg: @pine-soft;
+  --td-tab-border-color: @border-soft;
+
+  // 输入
+  --td-input-bg-color: transparent;
+  --td-input-border-color: @border;
+  --td-input-default-text-color: @text;
+  --td-input-label-text-color: @text-dim;
+  --td-input-placeholder-text-color: @text-faint;
+  --td-input-disabled-text-color: @text-faint;
+  --td-input-default-tips-color: @text-faint;
+
+  // 容器类（弹层用实色白，避免透出下层内容）
+  --td-popup-bg-color: @bg-panel;
+  --td-dialog-bg-color: @bg-panel;
+  --td-drawer-bg-color: @bg-panel;
+  --td-drawer-border-color: @border-soft;
+  --td-drawer-hover-color: #f3f1e9;
+  --td-drawer-title-color: @text;
+  --td-drawer-item-icon-color: @text-dim;
+  --td-picker-bg-color: @bg-panel;
+  --td-picker-title-color: @text;
+  --td-picker-indicator-bg-color: @pine-soft;
+  --td-picker-cancel-color: @text-dim;
+  --td-picker-confirm-color: @pine;
+  --td-toast-bg-color: rgba(34, 48, 46, 0.92);
+  --td-toast-color: #f7f5ef;
+
+  // 其它
+  --td-divider-color: @border-soft;
+  --td-divider-content-color: @text-faint;
+  --td-empty-icon-color: @text-faint;
+  --td-empty-description-color: @text-faint;
+  --td-progress-track-color: #e9e6db;
+  --td-progress-inner-bg-color: @pine;
+  --td-progress-circle-inner-bg-color: @pine-soft;
+  --td-upload-add-bg-color: @card-strong;
+  --td-upload-add-color: @text-dim;
+  --td-button-primary-disabled-color: rgba(30, 107, 90, 0.32);
+  --td-tag-primary-light-color: @pine;
+  --td-radio-label-color: @text-dim;
+  --td-radio-checked-icon-color: @pine;
+}
+
+// ============================================================
+//  混入：手账卡片（白底 + 浅描边 + 柔阴影）
+// ============================================================
+.fg-glass(@radius: @radius) {
+  background: @card;
+  border: 1rpx solid @border;
+  border-radius: @radius;
+  box-shadow: @shadow-sm;
+}
+
+// ---------- 混入：渐变文字（青绿 → 雪峰蓝）----------
+.fg-grad-text() {
+  background: @grad;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// ---------- 混入：卡片顶部渐亮细线 ----------
+.fg-topline() {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rpx;
+    background: @grad;
+    opacity: 0.7;
+  }
+}
+
+// ---------- 混入：页面根底色 + 氛围光 ----------
+//  浅色主题的氛围光要「淡到几乎看不见」，重了会显脏
+.fg-surface() {
+  position: relative;
+  min-height: 100vh;
+  background-color: @bg;
+  color: @text;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: -10%;
+    right: -25%;
+    width: 620rpx;
+    height: 620rpx;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 32%, rgba(46, 110, 149, 0.14), transparent 62%),
+      radial-gradient(circle at 70% 70%, rgba(30, 107, 90, 0.16), transparent 62%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+// ============================================================
+//  ⚠️ 兜底规则，请勿删除
+//  本文件只放令牌与混入，本身不产出任何样式；但微信开发者工具会把
+//  项目里每个 .less 都当成一个 wxss 参与编译（variable.less → variable.wxss），
+//  编译产物为 0 字节时工具会直接抛「编译 .wxss 文件错误」，导致整页白屏。
+//  这里保留一条极小的实体规则，保证本文件始终有产物。
+// ============================================================
+.fg-tokens {
+  color-scheme: light;
+}
+
+// ---------- 混入：分组标题（标题 + 渐隐横线） ----------
+.fg-sec-title() {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  margin-bottom: 18rpx;
+
+  .n {
+    .fg-display();
+
+    flex: none;
+    font-size: 26rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: @pine;
+  }
+
+  .t {
+    .fg-display();
+
+    font-size: 38rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: @text;
+  }
+
+  .bar {
+    flex: 1;
+    height: 1rpx;
+    background: linear-gradient(90deg, @border, transparent);
+  }
+}
+
+// ---------- 混入：衬线标题（山野手账的杂志感来源）----------
+.fg-display() {
+  font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
+}

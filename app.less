@@ -1,9 +1,65 @@
+@import './variable.less';
+
 /**app.wxss**/
 page {
-  background-color: #f3f3f3;
+  // 全局兜底：页面根节点之外（app 级组件）也能拿到山野手账主题
+  .fg-theme();
+
+  min-height: 100%;
+  color: @text;
+  font-size: 28rpx;
+  font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+
+  background-color: @bg;
+  // 右上角一团很淡的「雪峰蓝 + 山林青绿」，尺度用 rpx 固定，长页面也不会被拉变形。
+  // 浅色主题下氛围光必须很克制，重了就显脏。
+  background-image: radial-gradient(640rpx 640rpx at 84% 0%, rgba(46, 110, 149, 0.12), transparent 68%),
+    radial-gradient(560rpx 560rpx at 12% 2%, rgba(30, 107, 90, 0.1), transparent 68%);
+  background-repeat: no-repeat;
 }
 
 .page {
-  height: 100vh;
-  background-color: #fff;
+  min-height: 100vh;
+  background-color: transparent;
+  color: @text;
+}
+
+// ============================================================
+//  全局通用零件
+// ============================================================
+
+// 手账卡片
+.fg-glass {
+  .fg-glass();
+}
+
+// 渐变文字
+.fg-grad {
+  .fg-grad-text();
+}
+
+// 小圆角胶囊标签（kicker / meta chip）
+.fg-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 22rpx;
+  font-size: 24rpx;
+  color: @text-dim;
+  background: @card;
+  border: 1rpx solid @border;
+  border-radius: @radius-pill;
+}
+
+// 渐变实心块
+.fg-grad-block {
+  background: @grad-135;
+  color: #fff;
+}
+
+// 分组标题
+.fg-sec-title {
+  .fg-sec-title();
 }
