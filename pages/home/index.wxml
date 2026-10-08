@@ -1,48 +1,679 @@
-<nav nav-type="search" />
-<view class="home-container">
-  <view class="home-content">
-    <t-tabs defaultValue="recommend">
-      <t-tab-panel label="推荐" value="recommend">
-        <t-pull-down-refresh
-          value="{{enable}}"
-          bind:refresh="onRefresh"
-          loadingTexts="{{['下拉刷新', '松手刷新', '正在刷新', '刷新完成']}}"
+<view class="home">
+  <nav />
+
+  <!-- 吸顶导航：第一行章节、第二行 DAY 1-9，点一下滚到对应区块 -->
+  <view
+    class="toc"
+    wx:if="{{ sections.length }}"
+    style="padding-top:{{ statusTop }}px;margin-top:-{{ statusTop }}px"
+  >
+    <view class="toc__fill" style="height:{{ statusTop }}px"></view>
+
+    <scroll-view
+      class="toc__scroll"
+      scroll-x
+      show-scrollbar="{{false}}"
+      scroll-into-view="{{ tocInto }}"
+      scroll-with-animation
+    >
+      <view class="toc__list">
+        <view
+          class="toc__item {{ activeSec === item.id ? 'is-on' : '' }}"
+          wx:for="{{ sections }}"
+          wx:key="id"
+          id="toc-{{ item.id }}"
+          data-id="{{ item.id }}"
+          bindtap="onTocTap"
+          >{{ item.text }}</view
         >
-          <view class="home-card-list">
-            <t-swiper
-              list="{{swiperList}}"
-              navigation="{{ { type: 'dots-bar' } }}"
-              height="488rpx"
-              style="width: 340rpx"
+      </view>
+    </scroll-view>
+
+    <scroll-view
+      class="toc__scroll toc__scroll--day"
+      scroll-x
+      show-scrollbar="{{false}}"
+      scroll-into-view="{{ dayInto }}"
+      scroll-with-animation
+    >
+      <view class="toc__list">
+        <view
+          class="toc__day {{ activeDay === item.id ? 'is-on' : '' }}"
+          wx:for="{{ dayTabs }}"
+          wx:key="id"
+          id="toc-{{ item.id }}"
+          data-id="{{ item.id }}"
+          bindtap="onDayTabTap"
+          >{{ item.text }}</view
+        >
+      </view>
+    </scroll-view>
+  </view>
+
+  <view class="home__body">
+    <!-- Hero -->
+    <view class="hero" wx:if="{{ trip }}">
+      <view class="hero__kicker">
+        <view class="hero__dot"></view>
+        <text>{{ trip.hero.kicker }}</text>
+      </view>
+      <view class="hero__title">
+        <text>{{ trip.hero.titleMain }}</text>
+        <text class="hero__title--grad">{{ trip.hero.titleGrad }}</text>
+      </view>
+      <view class="hero__sub">{{ trip.hero.subtitle }}</view>
+      <view class="hero__meta">
+        <view class="hero__chip" wx:for="{{ trip.hero.meta }}" wx:key="index">
+          <t-icon name="{{ item.icon }}" size="26rpx" color="#1E6B5A" />
+          <text>{{ item.text }}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 实时天气：云函数查到才渲染，查不到整条不占位 -->
+    <view class="live" wx:if="{{ liveWeather }}">
+      <view class="live__head">
+        <t-icon name="cloudy-day" size="28rpx" color="#2E6E95" />
+        <text class="live__label">实时天气</text>
+        <text class="live__city">{{ liveWeather.city }}</text>
+        <text class="live__temp" wx:if="{{ liveWeather.temp }}">{{ liveWeather.temp }}</text>
+      </view>
+      <view class="live__text">
+        <text>{{ liveWeather.text }}</text>
+        <text wx:if="{{ liveWeather.meta }}"> · {{ liveWeather.meta }}</text>
+      </view>
+      <view class="live__hint" wx:if="{{ liveWeather.hint }}">{{ liveWeather.hint }}</view>
+    </view>
+
+    <!-- ============ 01 行程总览 ============ -->
+    <view class="sec" id="sec-overview" wx:if="{{ days.length }}">
+      <view class="fg-sec-title">
+        <text class="n">01</text>
+        <text class="t">行程总览</text>
+        <view class="bar"></view>
+        <text class="sec__meta">点击跳转</text>
+      </view>
+      <view class="ov">
+        <view
+          class="ovcard"
+          wx:for="{{ days }}"
+          wx:key="index"
+          data-index="{{ item.index }}"
+          bindtap="goDay"
+        >
+          <view class="ovcard__tag">{{ item.tag }}</view>
+          <view class="ovcard__title">{{ item.cardTitle || item.title }}</view>
+          <view class="ovcard__brief">{{ item.brief }}</view>
+          <!-- 整行可点：唤起微信内置地图看这晚住哪；catchtap 拦住外层 goDay 的冒泡 -->
+          <view class="ovcard__stay" data-di="{{ item.index }}" catchtap="onOpenStay">
+            <t-icon name="home" size="22rpx" color="#1E6B5A" />
+            <text>{{ item.stay }}</text>
+            <view class="ovcard__geo" wx:if="{{ item.stayGeo }}">
+              <t-icon name="location" size="22rpx" color="#2E6E95" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============ 02 逐日安排 ============ -->
+    <view class="sec" id="sec-day" wx:if="{{ days.length }}">
+      <view class="fg-sec-title">
+        <text class="n">02</text>
+        <text class="t">逐日安排</text>
+        <view class="bar"></view>
+        <text class="sec__meta">共 {{ days.length }} 天</text>
+      </view>
+      <view class="sec__desc" wx:if="{{ trip.daysDesc }}">{{ trip.daysDesc }}</view>
+
+      <!--
+        未来七天预报带：恒 7 格（今天起 7 天，每天整体前移），4 列 2 行网格全展开。
+        每格按「那天行程所在的城」查：落在行程里的格子挂 DAY n 徽标，
+        行程外的格子（出发前就是常态）按出发地查。查不到整条不渲染。
+      -->
+      <view class="wstrip" wx:if="{{ weekWeather.length }}">
+        <view class="wstrip__head">
+          <t-icon name="cloudy-day" size="26rpx" color="#2E6E95" />
+          <text class="wstrip__label">未来七天</text>
+          <text class="wstrip__hint">今天起 7 天</text>
+        </view>
+        <view class="wstrip__rail">
+          <view
+            class="wstrip__cell {{ item.isToday ? 'is-today' : '' }}"
+            wx:for="{{ weekWeather }}"
+            wx:key="date"
+          >
+            <text class="wstrip__badge {{ item.inTrip ? 'is-trip' : '' }}">{{ item.label }}</text>
+            <text class="wstrip__date">{{ item.md }}</text>
+            <text class="wstrip__city">{{ item.city }}</text>
+            <text class="wstrip__text" wx:if="{{ item.text }}">{{ item.text }}</text>
+            <text class="wstrip__temp" wx:if="{{ item.temp }}">{{ item.temp }}</text>
+            <text class="wstrip__wait" wx:if="{{ !item.text && !item.temp }}">待更新</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="day" wx:for="{{ days }}" wx:key="index" id="day-{{ item.index }}">
+        <view class="day__head">
+          <view class="day__tag">{{ item.tag }}</view>
+          <text class="day__alt" wx:if="{{ item.alt }}">{{ item.alt }}</text>
+        </view>
+        <view class="day__title">{{ item.title }}</view>
+        <view class="day__route">
+          <t-icon name="map-route-planning" size="26rpx" color="#B4552D" />
+          <text>{{ item.route }}</text>
+        </view>
+        <view class="day__desc">{{ item.desc }}</view>
+
+        <view class="day__body">
+          <!--
+            当日天气：落在接口 7 天窗口内的行程日显示真实预报
+            （api/weather.js 的 fetchDailyWeather 注入 item.live），窗口外继续用攻略里的参考文案。
+          -->
+          <view class="dwx" wx:if="{{ item.live || item.weather.length }}">
+            <view class="dwx__label">
+              <t-icon name="cloudy-day" size="26rpx" color="#2E6E95" />
+              <text>{{ item.live ? '实时预报' : '当日天气 · 参考' }}</text>
+            </view>
+            <view class="dwx__item is-live" wx:if="{{ item.live }}">
+              <text class="dwx__text">{{ item.live.text }}</text>
+              <text class="dwx__temp" wx:if="{{ item.live.temp }}">{{ item.live.temp }}</text>
+            </view>
+            <block wx:if="{{ !item.live }}">
+              <view
+                class="dwx__item {{ w.hot ? 'is-hot' : '' }}"
+                wx:for="{{ item.weather }}"
+                wx:for-item="w"
+                wx:key="text"
+              >
+                <text class="dwx__text">{{ w.text }}</text>
+                <text class="dwx__temp" wx:if="{{ w.temp }}">{{ w.temp }}</text>
+                <text class="dwx__rain" wx:if="{{ w.rain }}"> · 降雨概率 {{ w.rain }}</text>
+              </view>
+            </block>
+          </view>
+
+          <!-- 时间线：commute 为交通条目，统一用实心「交通」徽标 + 陶土棕左边线。
+               攻略里写死的交通条目已于 2026-09-15 整体下线，这里出现的交通全部来自
+               07「交通记录」；key 用 k，不能用 t：用户记的交通可能落在攻略里同一时刻 -->
+          <view class="tl">
+            <view
+              class="tl__item {{ step.commute ? 'is-commute' : '' }}"
+              wx:for="{{ item.timeline }}"
+              wx:for-item="step"
+              wx:for-index="si"
+              wx:key="k"
+            >
+              <view class="tl__time">{{ step.t }}</view>
+              <view class="tl__c">
+                <text class="tl__badge" wx:if="{{ step.commute }}">交通</text>
+                <text class="tl__main">{{ step.c }}</text>
+                <text class="tl__sub" wx:if="{{ step.sub }}">{{ step.sub }}</text>
+                <!-- 来源胶囊：只在粘了小程序链接的记录上出现。catchtap 是习惯性拦冒泡：
+                     这张卡里已有多个可点元素，将来容器若再加点击行为，别让它们互相穿透 -->
+                <view
+                  class="tl__src"
+                  wx:if="{{ step.link }}"
+                  data-link="{{ step.link }}"
+                  catchtap="onOpenSource"
+                >
+                  <t-icon name="link" size="20rpx" color="#B4552D" />
+                  <text class="tl__src-t">{{ step.src }}</text>
+                  <text class="tl__go">打开</text>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="tip" wx:if="{{ item.tips.length }}">
+            <view class="tip__title">
+              <t-icon name="tips" size="26rpx" color="#1E6B5A" />
+              <text>本日要点</text>
+            </view>
+            <view class="tip__list">
+              <view class="tip__li" wx:for="{{ item.tips }}" wx:for-item="tp" wx:key="*this">{{ tp }}</view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 整条都可点：home 图标、酒店名、「地图」胶囊都算（catchtap 习惯性拦冒泡） -->
+        <view class="day__foot" data-di="{{ item.index }}" catchtap="onOpenStay">
+          <t-icon name="home" size="26rpx" color="#1E6B5A" />
+          <text class="day__stay">{{ item.stay }}</text>
+          <!-- 纯视觉提示，不再单独绑事件；点它会自然冒泡到整条 -->
+          <view class="day__geo" wx:if="{{ item.stayGeo }}">
+            <t-icon name="location" size="22rpx" color="#2E6E95" />
+            <text>地图</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============ 03 景区内部游玩路线 ============ -->
+    <view class="sec" id="sec-routes" wx:if="{{ routes.length }}">
+      <view class="fg-sec-title">
+        <text class="n">03</text>
+        <text class="t">景区内部游玩路线</text>
+        <view class="bar"></view>
+        <text class="sec__meta">{{ routes.length }} 条</text>
+      </view>
+      <view class="sec__desc">{{ trip.routesDesc }}</view>
+
+      <view class="route" wx:for="{{ routes }}" wx:key="name">
+        <view class="route__head">
+          <text class="route__name">{{ item.name }}</text>
+          <text class="route__price">{{ item.price }}</text>
+        </view>
+        <view class="route__title">{{ item.title }}</view>
+        <view class="route__sub">{{ item.sub }}</view>
+
+        <view class="route__flow">
+          <block wx:for="{{ item.stops }}" wx:for-item="s" wx:key="label">
+            <view class="stop {{ s.hot ? 'is-hot' : '' }}">{{ s.label }}</view>
+            <text class="route__arrow" wx:if="{{ !s.last }}">→</text>
+          </block>
+        </view>
+
+        <view class="route__legend">{{ item.legend }}</view>
+      </view>
+    </view>
+
+    <!-- ============ 04 预约与购票清单 ============ -->
+    <view class="sec" id="sec-booking" wx:if="{{ trip.booking }}">
+      <view class="fg-sec-title">
+        <text class="n">04</text>
+        <text class="t">预约与购票清单</text>
+        <view class="bar"></view>
+        <text class="sec__meta">{{ countdown.length }} 项待约</text>
+      </view>
+      <view class="sec__desc">{{ trip.booking.desc }}</view>
+
+      <!-- 预约倒计时：按打开当天的日期实时计算，不是写死的文案 -->
+      <view class="cd">
+        <view class="cd__note"
+          ><text class="cd__note-t">{{ trip.booking.countdownTitle }}</text>{{ trip.booking.countdownNote }}</view
+        >
+        <view class="cd__legend">
+          <view class="cd__lg" wx:for="{{ trip.booking.legend }}" wx:key="state">
+            <view class="cd__lg-dot is-{{ item.state }}"></view>
+            <text>{{ item.text }}</text>
+          </view>
+        </view>
+
+        <view class="cd__row" wx:for="{{ countdown }}" wx:key="item">
+          <view class="cd__main">
+            <view class="cd__head">
+              <text class="cd__name">{{ item.item }}</text>
+              <text class="cd__count is-{{ item.state }}">{{ item.countText }}</text>
+            </view>
+            <view class="cd__sub">{{ item.sub }}</view>
+            <view class="cd__meta">
+              <text>最早可约 {{ item.openText }} · {{ item.leadText }}</text>
+              <text class="cd__ch">{{ item.channel }}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============ 05 物品准备（同行人共享清单） ============ -->
+    <view class="sec" id="sec-packing" wx:if="{{ trip.packing }}">
+      <view class="fg-sec-title">
+        <text class="n">05</text>
+        <text class="t">物品准备</text>
+        <view class="bar"></view>
+        <text class="sec__meta">{{ packingDone }} / {{ packing.length }}</text>
+      </view>
+      <view class="sec__desc">{{ trip.packing.desc }}</view>
+
+      <view class="gear">
+        <view class="gear__head">
+          <text class="gear__title">打包清单</text>
+          <view class="sync {{ syncOnline ? 'is-on' : 'is-local' }}">
+            <view class="sync__dot"></view>
+            <text>{{ syncText }}</text>
+          </view>
+        </view>
+
+        <view class="gear__stat">
+          合计 <text class="hl">{{ packing.length }}</text> 件 · 已带上
+          <text class="hl">{{ packingDone }}</text> 件
+        </view>
+        <view class="bar2"><view class="bar2__fill" style="width:{{ packingPercent }}%"></view></view>
+
+        <view class="gear__cats">
+          <view
+            class="gear__cat {{ packingGroup === item ? 'is-on' : '' }}"
+            wx:for="{{ packingCats }}"
+            wx:key="*this"
+            data-group="{{ item }}"
+            bindtap="onPickPackingGroup"
+            >{{ item }}</view
+          >
+        </view>
+
+        <view class="gear__form">
+          <input
+            class="gear__input"
+            value="{{ packingInput }}"
+            maxlength="30"
+            placeholder="输入要带的物品，如：防晒霜、便携氧气瓶…"
+            placeholder-class="ph"
+            confirm-type="done"
+            bindinput="onPackingInput"
+            bindconfirm="onAddPacking"
+          />
+          <view class="gear__add {{ packingInput ? '' : 'is-off' }}" bindtap="onAddPacking">添加</view>
+        </view>
+
+        <view class="gear__list">
+          <view class="pgroup" wx:for="{{ packingGroups }}" wx:key="name" wx:for-item="grp">
+            <view class="pgroup__head">
+              <text class="pgroup__name">{{ grp.name }}</text>
+              <text class="pgroup__meta">{{ grp.done }} / {{ grp.total }}</text>
+            </view>
+            <view
+              class="gitem {{ item.done ? 'is-done' : '' }}"
+              wx:for="{{ grp.items }}"
+              wx:key="id"
+              wx:for-item="item"
+            >
+              <view
+                class="gitem__check"
+                data-id="{{ item.id }}"
+                data-done="{{ item.done }}"
+                catchtap="onTogglePacking"
+              >
+                <t-icon wx:if="{{ item.done }}" name="check" size="24rpx" color="#FFFFFF" />
+              </view>
+              <text class="gitem__name" data-id="{{ item.id }}" data-done="{{ item.done }}" catchtap="onTogglePacking"
+                >{{ item.name }}</text
+              >
+              <text class="gitem__who">{{ item.who }}</text>
+              <view class="gitem__del" data-id="{{ item.id }}" data-name="{{ item.name }}" catchtap="onRemovePacking">
+                <t-icon name="close" size="24rpx" color="#8C9A94" />
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="gear__empty" wx:if="{{ !packing.length }}">清单还是空的，从上边输入第一件物品吧</view>
+
+        <view class="gear__tip">{{ trip.packing.tip }}</view>
+      </view>
+    </view>
+
+    <!-- ============ 06 花费统计（同行人共享记账） ============ -->
+    <view class="sec" id="sec-costs" wx:if="{{ trip.costs }}">
+      <view class="fg-sec-title">
+        <text class="n">06</text>
+        <text class="t">花费统计</text>
+        <view class="bar"></view>
+        <text class="sec__meta">{{ costCount }} 笔</text>
+      </view>
+      <view class="sec__desc">{{ trip.costs.desc }}</view>
+
+      <view class="gear">
+        <view class="gear__head">
+          <text class="gear__title">记一笔</text>
+          <view class="sync {{ costOnline ? 'is-on' : 'is-local' }}">
+            <view class="sync__dot"></view>
+            <text>{{ costText }}</text>
+          </view>
+        </view>
+
+        <view class="gear__note">{{ trip.costs.note }}</view>
+
+        <view class="tt">
+          <text class="tt__label">已记录总花费</text>
+          <text class="tt__num">¥{{ costTotal }}</text>
+          <text class="tt__meta">共 {{ costCount }} 笔 · 按 {{ shareCount }} 人分摊约 ¥{{ costAvg }} / 人</text>
+        </view>
+
+        <!-- 分类总价：始终列出全部 7 类，未记账的显示 ¥0 并置灰 -->
+        <view class="ccats">
+          <view class="ccats__head">
+            <text class="ccats__title">{{ trip.costs.catsTitle }}</text>
+            <text class="ccats__hint">{{ trip.costs.catsHint }}</text>
+          </view>
+          <view class="ccat {{ item.zero ? 'is-zero' : '' }}" wx:for="{{ costCats }}" wx:key="name">
+            <text class="ccat__name">{{ item.name }}</text>
+            <view class="ccat__bar"><view class="ccat__fill" style="width:{{ item.percent }}%"></view></view>
+            <text class="ccat__num">¥{{ item.text }}</text>
+          </view>
+        </view>
+
+        <view class="cform">
+          <input
+            class="cform__amount"
+            type="digit"
+            value="{{ costForm.amount }}"
+            data-field="amount"
+            placeholder="金额"
+            placeholder-class="ph"
+            bindinput="onCostInput"
+          />
+          <input
+            class="cform__note"
+            type="text"
+            value="{{ costForm.note }}"
+            maxlength="30"
+            data-field="note"
+            placeholder="用途，如：九寨沟门票、打车"
+            placeholder-class="ph"
+            bindinput="onCostInput"
+          />
+          <picker
+            class="cform__cat"
+            mode="selector"
+            range="{{ costCategories }}"
+            value="{{ costCatIndex }}"
+            bindchange="onCostCat"
+          >
+            <view class="cform__catbox">
+              <text>{{ costForm.category }}</text>
+              <t-icon name="chevron-down" size="22rpx" color="#8C9A94" />
+            </view>
+          </picker>
+          <view class="cform__add" bindtap="onAddCost">记一笔</view>
+        </view>
+
+        <!-- 明细默认收起：笔数一多整块很占版面，折成一行头条，点开再看全部 -->
+        <view class="clist" wx:if="{{ costs.length }}">
+          <view class="clist__btn" bindtap="onToggleCosts">
+            <text class="clist__btn-t">{{ costOpen ? '收起明细' : '展开全部 ' + costCount + ' 笔' }}</text>
+            <t-icon name="{{ costOpen ? 'chevron-up' : 'chevron-down' }}" size="28rpx" color="#8C9A94" />
+          </view>
+
+          <view class="clist__body" wx:if="{{ costOpen }}">
+            <!-- 分类筛选：只列有记录的分类，默认「全部」；只剩一类有记录时整条不显示 -->
+            <view class="cfilt" wx:if="{{ costFilters.length > 1 }}">
+              <view
+                class="cfilt__chip {{ costFilter === '全部' ? 'is-on' : '' }}"
+                data-cat="全部"
+                bindtap="onCostFilter"
+                >全部</view
+              >
+              <view
+                class="cfilt__chip {{ costFilter === item ? 'is-on' : '' }}"
+                wx:for="{{ costFilters }}"
+                wx:key="*this"
+                data-cat="{{ item }}"
+                bindtap="onCostFilter"
+                >{{ item }}</view
+              >
+            </view>
+
+            <view class="citem" wx:for="{{ costsShown }}" wx:key="id">
+              <text class="citem__amt">¥{{ item.amountText }}</text>
+              <text class="citem__note">{{ item.note }}</text>
+              <text class="citem__date">{{ item.dateText }}</text>
+              <text class="citem__tag">{{ item.category }}</text>
+              <view class="citem__del" data-id="{{ item.id }}" catchtap="onRemoveCost">
+                <t-icon name="close" size="24rpx" color="#8C9A94" />
+              </view>
+            </view>
+
+            <view class="clist__none" wx:if="{{ !costsShown.length }}">这一类还没有记录</view>
+          </view>
+        </view>
+
+        <view class="gear__empty" wx:if="{{ !costs.length }}">还没有记账记录，记下第一笔花费吧</view>
+
+        <view class="gear__tip">{{ trip.costs.tip }}</view>
+      </view>
+    </view>
+
+    <!-- ============ 07 交通记录（同行人共享，手动记时间后并入逐日行程） ============ -->
+    <view class="sec" id="sec-traffic" wx:if="{{ trip.traffic }}">
+      <view class="fg-sec-title">
+        <text class="n">07</text>
+        <text class="t">交通记录</text>
+        <view class="bar"></view>
+        <text class="sec__meta">{{ trafficCount }} 条</text>
+      </view>
+      <view class="sec__desc">{{ trip.traffic.desc }}</view>
+
+      <view class="gear">
+        <view class="gear__head">
+          <text class="gear__title">记一笔交通</text>
+          <view class="sync {{ trafficOnline ? 'is-on' : 'is-local' }}">
+            <view class="sync__dot"></view>
+            <text>{{ trafficText }}</text>
+          </view>
+        </view>
+
+        <view class="tform">
+          <!-- 日期范围就是本次行程的 9 天（trafficMin / trafficMax 来自 mock 的 days 首尾） -->
+          <view class="tform__row">
+            <picker
+              class="tform__pick"
+              mode="date"
+              value="{{ trafficForm.date }}"
+              start="{{ trafficMin }}"
+              end="{{ trafficMax }}"
+              bindchange="onTrafficDate"
+            >
+              <view class="tform__box {{ trafficForm.date ? '' : 'is-empty' }}">
+                <t-icon name="calendar" size="26rpx" color="#B4552D" />
+                <text>{{ trafficForm.date || '选日期' }}</text>
+              </view>
+            </picker>
+            <picker class="tform__pick" mode="time" value="{{ trafficForm.time }}" bindchange="onTrafficTime">
+              <view class="tform__box {{ trafficForm.time ? '' : 'is-empty' }}">
+                <t-icon name="time" size="26rpx" color="#B4552D" />
+                <text>{{ trafficForm.time || '选时间' }}</text>
+              </view>
+            </picker>
+          </view>
+
+          <view class="tform__modes">
+            <view
+              class="tchip {{ trafficForm.mode === m ? 'is-on' : '' }}"
+              wx:for="{{ trafficModes }}"
+              wx:for-item="m"
+              wx:key="*this"
+              data-index="{{ index }}"
+              bindtap="onTrafficMode"
+              >{{ m }}</view
+            >
+          </view>
+
+          <view class="tform__row">
+            <input
+              class="tform__in"
+              value="{{ trafficForm.from }}"
+              maxlength="20"
+              data-field="from"
+              placeholder="出发地"
+              placeholder-class="ph"
+              bindinput="onTrafficInput"
             />
-            <card
-              wx:for="{{cardInfo}}"
-              wx:key="index"
-              desc="{{item.desc}}"
-              url="{{item.url}}"
-              tags="{{item.tags}}"
+            <text class="tform__arrow">→</text>
+            <input
+              class="tform__in"
+              value="{{ trafficForm.to }}"
+              maxlength="20"
+              data-field="to"
+              placeholder="到达地"
+              placeholder-class="ph"
+              bindinput="onTrafficInput"
             />
           </view>
-        </t-pull-down-refresh>
-      </t-tab-panel>
-      <t-tab-panel label="我的关注" value="follow">
-        <view class="home-card-list">
-          <card
-            wx:for="{{focusCardInfo}}"
-            wx:key="index"
-            desc="{{item.desc}}"
-            url="{{item.url}}"
-            tags="{{item.tags}}"
-          />
-        </view>
-      </t-tab-panel>
-    </t-tabs>
-  </view>
-</view>
 
-<view class="home-release">
-  <t-button theme="primary" size="large" icon="add" shape="round" bindtap="goRelease">
-    发布
-  </t-button>
+          <!-- 来源：自由文本。填名称就只当文字；粘「… → 复制链接」的小程序链接则能点着跳过去 -->
+          <view class="tform__row">
+            <input
+              class="tform__in"
+              value="{{ trafficForm.src }}"
+              maxlength="200"
+              data-field="src"
+              placeholder="来源：12306、携程，或粘小程序链接（可不填）"
+              placeholder-class="ph"
+              bindinput="onTrafficInput"
+            />
+          </view>
+
+          <view class="tform__row">
+            <input
+              class="tform__in"
+              value="{{ trafficForm.no }}"
+              maxlength="20"
+              data-field="no"
+              placeholder="班次号，如 C6368、CA4532（可不填）"
+              placeholder-class="ph"
+              confirm-type="done"
+              bindinput="onTrafficInput"
+              bindconfirm="onAddTraffic"
+            />
+            <view class="tform__add" bindtap="onAddTraffic">加入行程</view>
+          </view>
+        </view>
+
+        <view class="tlist">
+          <view class="titem" wx:for="{{ traffic }}" wx:key="id">
+            <view class="titem__when">
+              <text class="titem__date">{{ item.dateText }}</text>
+              <text class="titem__time">{{ item.time }}</text>
+            </view>
+            <view class="titem__body">
+              <text class="titem__c">{{ item.c }}</text>
+              <text class="titem__sub" wx:if="{{ item.sub }}">{{ item.sub }}</text>
+              <view
+                class="titem__src {{ item.link ? 'is-go' : '' }}"
+                wx:if="{{ item.src }}"
+                data-link="{{ item.link }}"
+                catchtap="onOpenSource"
+              >
+                <t-icon
+                  name="{{ item.link ? 'link' : 'location' }}"
+                  size="20rpx"
+                  color="{{ item.link ? '#B4552D' : '#8C9A94' }}"
+                />
+                <text class="titem__src-t">{{ item.src }}</text>
+                <text class="titem__go" wx:if="{{ item.link }}">打开</text>
+              </view>
+            </view>
+            <text class="titem__day" wx:if="{{ item.dayTag }}">{{ item.dayTag }}</text>
+            <view class="titem__del" data-id="{{ item.id }}" catchtap="onRemoveTraffic">
+              <t-icon name="close" size="24rpx" color="#8C9A94" />
+            </view>
+          </view>
+        </view>
+
+        <view class="gear__empty" wx:if="{{ !traffic.length }}">还没有交通记录，选好时间记下第一段吧</view>
+
+        <view class="gear__tip">{{ trip.traffic.tip }}</view>
+      </view>
+    </view>
+
+    <!-- 页脚：票价来源与免责 -->
+    <view class="foot" wx:if="{{ trip.footer.length }}">
+      <text class="foot__p" wx:for="{{ trip.footer }}" wx:key="*this">{{ item }}</text>
+    </view>
+
+    <view class="home__bottom"></view>
+  </view>
+
+  <t-message id="t-message" />
 </view>
-<t-message id="t-message" />

@@ -1,39 +1,1741 @@
-@import '/variable.less';
+@import '../../variable.less';
 
-@home-tab-item-height: 96rpx;
+/* ============================================================
+   首页 · 山野手账（浅色）
+   三色语义：青绿 = 强调 / 必玩点；雪峰蓝 = 天气 / 信息；
+             陶土棕 = 交通 / 价格。
+   本文件只允许出现令牌与语义色，不要再写死 rgba(255,255,255,x)。
+   ============================================================ */
 
-.home-container {
-  height: calc(100vh - @tab-bar-height);
+.home {
+  .fg-theme();
 
-  .home-content {
-    height: calc(100% - @nav-bar-height);
+  min-height: 100vh;
+
+  &__body {
+    padding-top: 8rpx;
   }
 
-  .t-tabs {
-    --td-tab-item-tag-height: @home-tab-item-height;
-    --td-tab-font-size: @font-size-small;
-    width: 100%;
-    height: 100%;
-
-    &__content {
-      height: calc(100% - @home-tab-item-height);
-      overflow: auto;
-      background-color: @bg-color;
-    }
-  }
-
-  .home-card-list {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 24rpx 12rpx;
-    padding: 24rpx;
-    background-color: @bg-color;
+  // 底部留白（首页已无悬浮按钮，只留安全区）
+  &__bottom {
+    height: calc(env(safe-area-inset-bottom) + 48rpx);
   }
 }
 
-.home-release {
-  position: fixed;
-  bottom: 208rpx;
-  right: 32rpx;
+/* ============================ Hero ============================ */
+.hero {
+  position: relative;
+  padding: 48rpx @page-pad 20rpx;
+  text-align: center;
+
+  &__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 12rpx;
+    padding: 8rpx 24rpx;
+    font-size: 22rpx;
+    letter-spacing: 4rpx;
+    color: @text-dim;
+    border: 1rpx solid @border;
+    border-radius: @radius-pill;
+    background: @card;
+  }
+
+  &__dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+    background: @grad-135;
+    box-shadow: 0 0 0 6rpx rgba(30, 107, 90, 0.14);
+  }
+
+  &__title {
+    .fg-display();
+
+    margin-top: 26rpx;
+    font-size: 68rpx;
+    font-weight: 700;
+    letter-spacing: 6rpx;
+    line-height: 1.25;
+    color: @text;
+  }
+
+  &__title--grad {
+    .fg-grad-text();
+  }
+
+  &__sub {
+    margin-top: 14rpx;
+    font-size: 26rpx;
+    color: @text-dim;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16rpx;
+    margin-top: 32rpx;
+  }
+
+  &__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10rpx;
+    padding: 10rpx 22rpx;
+    font-size: 23rpx;
+    color: @text-dim;
+    background: @card;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+    box-shadow: @shadow-sm;
+  }
+}
+
+/* ======================= 实时天气（雪峰蓝 · 信息） =======================
+   数据来自云函数中转的腾讯位置服务。拿不到数据时整条不渲染，
+   所以这里不需要写空态样式；左边线沿用「信息类」的雪峰蓝。
+   ====================================================================== */
+.live {
+  .fg-glass();
+
+  margin: 4rpx @page-pad 8rpx;
+  padding: 22rpx 26rpx;
+  border-left: 6rpx solid @sky;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10rpx;
+  }
+
+  &__label {
+    font-size: 22rpx;
+    letter-spacing: 2rpx;
+    color: @sky;
+  }
+
+  &__city {
+    font-size: 24rpx;
+    color: @text-dim;
+  }
+
+  &__temp {
+    .fg-display();
+
+    margin-left: auto;
+    font-size: 40rpx;
+    font-weight: 700;
+    line-height: 1;
+    color: @sky;
+  }
+
+  &__text {
+    margin-top: 12rpx;
+    font-size: 27rpx;
+    line-height: 1.5;
+    color: @text;
+  }
+
+  &__hint {
+    margin-top: 12rpx;
+    padding-top: 12rpx;
+    font-size: 23rpx;
+    line-height: 1.5;
+    color: @text-faint;
+    border-top: 1rpx solid @border-soft;
+  }
+}
+
+/* ============== 未来七天预报带（放在 02 逐日安排 顶部，4 列 2 行网格） ==============
+   恒 7 格：今天起 7 天，每格按那天行程所在的城市查；格子是日历日，
+   所以在行程中打开时它才会自己变成 DAY 1 / DAY 2 那串对应关系。
+   行程外的格子（出发前是常态）没有 DAY n 徽标，格首只写星期。
+   排列是 4 列 × 2 行（4 + 3），**不横滑** —— 7 格同屏可见，不藏内容也不用提示去滑。
+   列宽约 149rpx，与原横滑版几乎一致，所以格内「天气 / 温度」两行的排版照旧成立。
+   ============================================================================== */
+.wstrip {
+  .fg-glass();
+
+  margin-bottom: 26rpx;
+  padding: 22rpx 26rpx;
+  border-left: 6rpx solid @sky;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 10rpx;
+    margin-bottom: 18rpx;
+  }
+
+  &__label {
+    font-size: 23rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: @sky;
+  }
+
+  &__hint {
+    margin-left: auto;
+    font-size: 21rpx;
+    color: @text-faint;
+  }
+
+  /* 4 列栅格：与 01 行程总览的 .ov 同一套写法。7 格自然排成 4 + 3，
+     最后一行 3 格靠左、不拉伸居中 —— 列宽一致才方便竖着比同一格的天气 */
+  &__rail {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12rpx;
+  }
+
+  &__cell {
+    box-sizing: border-box;
+    padding: 16rpx 10rpx;
+    text-align: center;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border;
+
+    &.is-today {
+      background: @sky-soft;
+      border-color: @sky;
+    }
+  }
+
+  /* 格首那行：行程日写 DAY n 并转青绿，其余是星期 */
+  &__badge {
+    display: block;
+    font-size: 20rpx;
+    letter-spacing: 1rpx;
+    /* 原来是 @text-faint，截图上「今天 / 周三」淡到几乎读不出，提到次级文字色 */
+    color: @text-dim;
+
+    &.is-trip {
+      font-weight: 700;
+      color: @pine;
+    }
+  }
+
+  /* 「今天」那格即使还没进行程，也要和 DAY n 一样重 —— 它是最该被一眼看到的一格 */
+  &__cell.is-today &__badge {
+    font-weight: 700;
+    color: @pine;
+  }
+
+  &__date {
+    .fg-display();
+
+    display: block;
+    margin-top: 6rpx;
+    font-size: 26rpx;
+    font-weight: 700;
+    color: @text;
+  }
+
+  &__city {
+    display: block;
+    margin-top: 4rpx;
+    font-size: 22rpx;
+    color: @text-dim;
+  }
+
+  /* 天气与温度分两行：四列网格下每格约 149rpx，减掉左右 padding 只剩 129rpx，
+     「阵雨转晴 17~25℃」一行根本放不下；拆行后任何长度的文案都不会再被截。
+     别想着并回一行 —— 上游的「多云转小雨」这类 5 字文案会顶到格沿。 */
+  &__text {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 21rpx;
+    line-height: 1.35;
+    color: @sky;
+  }
+
+  &__temp {
+    .fg-display();
+
+    display: block;
+    font-size: 23rpx;
+    font-weight: 700;
+    line-height: 1.3;
+    color: @sky;
+  }
+
+  &__wait {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 21rpx;
+    line-height: 1.35;
+    color: @text-faint;
+  }
+}
+
+/* ===================== 吸顶章节导航（对应网页版顶部 nav） =====================
+   第一行章节（滚动联动高亮）、第二行 DAY 1-9（点击直达某天）。
+   贴顶逻辑：padding-top 与 margin-top 互相抵消，所以静止时外观不变（多出来的
+   垫底填充区被导航栏盖住，导航栏 z-index 更高）；
+   吸顶后 padding 区被 __fill 的实色盖住，正好顶到右上角胶囊按钮以下，不会遮字。
+   statusTop 不是状态栏高度，是「胶囊下沿 + 呼吸位」，见 tocTopInset()。
+   ========================================================================= */
+.toc {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: rgba(247, 245, 239, 0.92);
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+  border-bottom: 1rpx solid @border-soft;
+
+  &__fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    background: @bg;
+  }
+
+  &__scroll {
+    white-space: nowrap;
+    width: 100%;
+  }
+
+  &__list {
+    display: inline-flex;
+    align-items: center;
+    gap: 8rpx;
+    padding: 12rpx @page-pad 14rpx;
+  }
+
+  &__item {
+    flex: none;
+    padding: 12rpx 26rpx;
+    font-size: 25rpx;
+    color: @text-dim;
+    border-radius: @radius-sm;
+    transition: 0.2s;
+
+    &.is-on {
+      color: @pine-deep;
+      font-weight: 700;
+      background: @pine-soft;
+      box-shadow: inset 0 0 0 1rpx rgba(30, 107, 90, 0.34);
+    }
+  }
+
+  // ---------- 第二行：DAY 1-9 ----------
+  &__scroll--day {
+    border-top: 1rpx solid @border-soft;
+  }
+
+  &__day {
+    flex: none;
+    min-width: 76rpx;
+    text-align: center;
+    padding: 8rpx 18rpx;
+    font-size: 23rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    color: @text-faint;
+    border-radius: @radius-pill;
+    border: 1rpx solid @border;
+    background: @card;
+    transition: 0.2s;
+
+    &.is-on {
+      color: #ffffff;
+      border-color: transparent;
+      background: @grad;
+      box-shadow: 0 4rpx 14rpx rgba(30, 107, 90, 0.28);
+    }
+  }
+}
+
+/* ========================== 区块 ========================== */
+.sec {
+  padding: 0 @page-pad;
+  margin-top: 44rpx;
+
+  &__meta {
+    font-size: 23rpx;
+    color: @accent;
+  }
+
+  &__desc {
+    font-size: 24rpx;
+    line-height: 1.62;
+    color: @text-dim;
+    margin-bottom: 22rpx;
+  }
+}
+
+/* ======================= 行程总览 · 日卡网格 ======================= */
+.ov {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+
+.ovcard {
+  position: relative;
+  overflow: hidden;
+  padding: 22rpx 24rpx 20rpx;
+
+  .fg-glass(@radius-md);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rpx;
+    background: @grad;
+    opacity: 0.7;
+  }
+
+  &__tag {
+    font-size: 21rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: @clay;
+  }
+
+  &__title {
+    margin-top: 8rpx;
+    font-size: 30rpx;
+    font-weight: 700;
+    color: @text;
+    line-height: 1.35;
+  }
+
+  &__brief {
+    margin-top: 10rpx;
+    font-size: 22rpx;
+    color: @text-dim;
+    line-height: 1.6;
+  }
+
+  &__stay {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    margin-top: 16rpx;
+    padding-top: 14rpx;
+    border-top: 1rpx dashed @border;
+    font-size: 21rpx;
+    color: @text-faint;
+    line-height: 1.4;
+  }
+
+  // 住宿行右端的「地图」入口：只有图标，整行都可点（见 wxml 的 catchtap）
+  &__geo {
+    flex: none;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    padding: 4rpx 10rpx;
+    border-radius: @radius-pill;
+    background: @sky-soft;
+  }
+}
+
+/* ========================= 行程卡片 ========================= */
+.day {
+  position: relative;
+  padding: 30rpx 30rpx 24rpx;
+  margin-bottom: 24rpx;
+  overflow: hidden;
+
+  .fg-glass();
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rpx;
+    background: @grad;
+    opacity: 0.7;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16rpx;
+  }
+
+  &__tag {
+    flex: none;
+    font-size: 22rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: @clay;
+  }
+
+  &__alt {
+    font-size: 21rpx;
+    color: @text-faint;
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  &__title {
+    margin-top: 8rpx;
+    font-size: 36rpx;
+    font-weight: 700;
+    color: @text;
+    line-height: 1.35;
+  }
+
+  &__route {
+    display: flex;
+    align-items: flex-start;
+    gap: 10rpx;
+    margin-top: 12rpx;
+    font-size: 24rpx;
+    color: @sky;
+    line-height: 1.5;
+  }
+
+  &__desc {
+    margin-top: 12rpx;
+    font-size: 26rpx;
+    color: @text-dim;
+    line-height: 1.65;
+  }
+
+  &__body {
+    margin-top: 22rpx;
+    padding-top: 22rpx;
+    border-top: 1rpx dashed @border;
+  }
+
+  &__foot {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    margin-top: 20rpx;
+    padding-top: 18rpx;
+    border-top: 1rpx dashed @border;
+    font-size: 23rpx;
+    color: @text-faint;
+  }
+
+  &__stay {
+    flex: 1;
+  }
+
+  // 住宿行右端的「地图」按钮：点它唤起微信内置地图，不触发卡片展开 / 收起
+  &__geo {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 4rpx;
+    padding: 6rpx 14rpx;
+    border-radius: @radius-pill;
+    background: @sky-soft;
+    color: @sky;
+    font-size: 20rpx;
+    line-height: 1.2;
+  }
+}
+
+/* ------------------------ 时间线 ------------------------ */
+.tl {
+  &__item {
+    position: relative;
+    padding: 0 0 20rpx 34rpx;
+    margin-left: 8rpx;
+    border-left: 1rpx solid @border;
+
+    &:last-child {
+      padding-bottom: 4rpx;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -6rpx;
+      top: 12rpx;
+      width: 10rpx;
+      height: 10rpx;
+      border-radius: 50%;
+      background: @pine;
+      box-shadow: 0 0 0 5rpx rgba(30, 107, 90, 0.14);
+    }
+
+    /* 城际大交通：陶土棕左边线 + 浅底 + 交通标签，与游玩项区分 */
+    &.is-commute {
+      padding-left: 36rpx;
+      padding-bottom: 24rpx;
+      border-left-color: transparent;
+      border-radius: 0 20rpx 20rpx 0;
+      background: linear-gradient(90deg, rgba(180, 85, 45, 0.12), rgba(180, 85, 45, 0.02));
+
+      &::before {
+        background: @clay;
+        box-shadow: 0 0 0 5rpx rgba(180, 85, 45, 0.14);
+      }
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: -1rpx;
+        top: 0;
+        bottom: 0;
+        width: 6rpx;
+        border-radius: 3rpx;
+        background: linear-gradient(180deg, #c2612f, #b4552d);
+      }
+
+      .tl__time {
+        color: @clay;
+      }
+
+      .tl__main {
+        color: @text;
+      }
+    }
+  }
+
+  &__time {
+    font-size: 23rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    color: @pine;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+  }
+
+  &__c {
+    margin-top: 4rpx;
+  }
+
+  &__main {
+    font-size: 26rpx;
+    color: @text-dim;
+    line-height: 1.6;
+  }
+
+  &__sub {
+    display: block;
+    margin-top: 6rpx;
+    font-size: 23rpx;
+    color: @text-faint;
+    line-height: 1.6;
+  }
+
+  /* 来源胶囊（只有粘了小程序链接的记录才有）。整卡 bindtap 负责收展，
+     这里必须由 wxml 层的 catchtap 拦住冒泡，样式层只管长相 */
+  &__src {
+    display: inline-flex;
+    align-items: center;
+    gap: 8rpx;
+    margin-top: 8rpx;
+    padding: 4rpx 16rpx;
+    border-radius: @radius-pill;
+    font-size: 21rpx;
+    color: @clay;
+    background: @clay-soft;
+    border: 1rpx solid rgba(180, 85, 45, 0.45);
+  }
+
+  &__src-t {
+    max-width: 320rpx;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__go {
+    font-size: 20rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+  }
+
+  &__badge {
+    display: inline-block;
+    margin-right: 10rpx;
+    padding: 2rpx 12rpx;
+    border-radius: 8rpx;
+    font-size: 20rpx;
+    font-weight: 700;
+    letter-spacing: 2rpx;
+    color: #ffffff;
+    background: @clay;
+    vertical-align: 2rpx;
+  }
+}
+
+/* --------------------- 当日天气条 --------------------- */
+.dwx {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8rpx 20rpx;
+  padding: 18rpx 24rpx;
+  margin-bottom: 22rpx;
+  border-radius: @radius-md;
+  border: 1rpx solid rgba(46, 110, 149, 0.24);
+  background: @sky-soft;
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    flex: none;
+    font-size: 23rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    color: @sky;
+  }
+
+  &__item {
+    font-size: 23rpx;
+    color: @text-dim;
+    line-height: 1.5;
+
+    &.is-hot {
+      padding: 4rpx 14rpx;
+      border-radius: @radius-pill;
+      color: @clay;
+      font-weight: 600;
+      background: @clay-soft;
+      border: 1rpx solid rgba(180, 85, 45, 0.28);
+    }
+
+    /* 真实预报：压一层白底，和下面的参考文案一眼分开 */
+    &.is-live {
+      display: flex;
+      align-items: center;
+      gap: 16rpx;
+      flex: 1 1 auto;
+      padding: 6rpx 20rpx;
+      border-radius: @radius-sm;
+      background: @card;
+      border: 1rpx solid rgba(46, 110, 149, 0.22);
+      color: @text;
+      font-weight: 600;
+    }
+  }
+
+  &__temp {
+    font-size: 23rpx;
+    font-weight: 600;
+    color: @text;
+  }
+
+  &__rain {
+    font-size: 22rpx;
+    color: @text-faint;
+  }
+}
+
+/* ------------------------ 要点提示 ------------------------ */
+.tip {
+  margin-top: 22rpx;
+  padding: 20rpx 24rpx;
+  background: @pine-soft;
+  border: 1rpx solid rgba(30, 107, 90, 0.22);
+  border-radius: @radius-md;
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    font-size: 24rpx;
+    font-weight: 700;
+    color: @pine-deep;
+    margin-bottom: 6rpx;
+  }
+
+  &__list {
+    margin-top: 10rpx;
+  }
+
+  &__li {
+    position: relative;
+    padding-left: 22rpx;
+    margin-bottom: 8rpx;
+    font-size: 24rpx;
+    color: @text-dim;
+    line-height: 1.6;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 15rpx;
+      width: 8rpx;
+      height: 8rpx;
+      border-radius: 50%;
+      background: @pine;
+    }
+  }
+}
+
+/* ================== 03 景区内部游玩路线 ================== */
+.route {
+  .fg-glass(@radius-md);
+
+  padding: 24rpx 24rpx 20rpx;
+  margin-bottom: 20rpx;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16rpx;
+  }
+
+  &__name {
+    font-size: 32rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    color: @text;
+  }
+
+  &__price {
+    flex: none;
+    font-size: 21rpx;
+    color: @clay;
+  }
+
+  &__title {
+    margin-top: 8rpx;
+    font-size: 26rpx;
+    color: @sky;
+  }
+
+  &__sub {
+    margin-top: 8rpx;
+    font-size: 23rpx;
+    line-height: 1.6;
+    color: @text-dim;
+  }
+
+  &__flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12rpx;
+    margin-top: 18rpx;
+    padding: 20rpx 18rpx;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border-soft;
+  }
+
+  &__arrow {
+    font-size: 22rpx;
+    color: @text-faint;
+  }
+
+  &__legend {
+    margin-top: 14rpx;
+    font-size: 21rpx;
+    line-height: 1.6;
+    color: @text-faint;
+  }
+}
+
+/* 路线节点：hot 走青绿浅底，表示必玩点 */
+.stop {
+  font-size: 23rpx;
+  padding: 8rpx 20rpx;
+  border-radius: @radius-pill;
+  background: @card;
+  border: 1rpx solid @border;
+  color: @text;
+  white-space: nowrap;
+
+  &.is-hot {
+    color: @pine-deep;
+    font-weight: 700;
+    background: @pine-soft;
+    border-color: rgba(30, 107, 90, 0.4);
+  }
+}
+
+/* ================== 05 预约与购票清单 ================== */
+.cd {
+  .fg-glass(@radius-md);
+
+  padding: 22rpx 22rpx 8rpx;
+
+  &__note {
+    font-size: 21rpx;
+    line-height: 1.62;
+    color: @text-faint;
+  }
+
+  &__note-t {
+    color: @text-dim;
+    font-weight: 700;
+  }
+
+  &__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24rpx;
+    margin: 16rpx 0 8rpx;
+  }
+
+  &__lg {
+    display: inline-flex;
+    align-items: center;
+    gap: 8rpx;
+    font-size: 21rpx;
+    color: @text-faint;
+  }
+
+  &__lg-dot {
+    width: 16rpx;
+    height: 16rpx;
+    border-radius: 50%;
+
+    &.is-now {
+      background: #2f9e6f;
+    }
+
+    &.is-soon {
+      background: #d09a1e;
+    }
+
+    &.is-idle {
+      background: @text-faint;
+    }
+  }
+
+  &__row {
+    padding: 20rpx 0;
+    border-top: 1rpx solid @border-soft;
+
+    &:first-of-type {
+      border-top: none;
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16rpx;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 25rpx;
+    font-weight: 600;
+    line-height: 1.45;
+    color: @text;
+  }
+
+  &__count {
+    flex: none;
+    font-size: 26rpx;
+    font-weight: 700;
+
+    &.is-now {
+      color: #2f9e6f;
+    }
+
+    &.is-soon {
+      color: #d09a1e;
+    }
+
+    &.is-idle {
+      color: @text-dim;
+    }
+  }
+
+  &__sub {
+    margin-top: 4rpx;
+    font-size: 21rpx;
+    color: @text-faint;
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8rpx 16rpx;
+    margin-top: 10rpx;
+    font-size: 21rpx;
+    color: @text-dim;
+  }
+
+  &__ch {
+    color: @text-faint;
+  }
+}
+
+/* ============ 06 / 07 共享清单 · 共享记账的公共外壳 ============ */
+.gear {
+  .fg-glass(@radius-md);
+
+  padding: 24rpx 24rpx 20rpx;
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16rpx;
+  }
+
+  &__title {
+    font-size: 28rpx;
+    font-weight: 700;
+    color: @text;
+  }
+
+  &__stat {
+    margin-top: 12rpx;
+    margin-bottom: 14rpx;
+    font-size: 22rpx;
+    color: @text-faint;
+
+    .hl {
+      color: @clay;
+      font-weight: 700;
+    }
+  }
+
+  &__note {
+    margin-top: 12rpx;
+    margin-bottom: 6rpx;
+    font-size: 21rpx;
+    line-height: 1.62;
+    color: @text-faint;
+  }
+
+  &__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+    margin-bottom: 14rpx;
+  }
+
+  &__cat {
+    padding: 10rpx 24rpx;
+    border-radius: @radius-pill;
+    font-size: 23rpx;
+    color: @text-dim;
+    background: @card-strong;
+    border: 1rpx solid @border;
+
+    &.is-on {
+      font-weight: 700;
+      color: #ffffff;
+      background: @grad-135;
+      border-color: transparent;
+    }
+  }
+
+  &__form {
+    display: flex;
+    gap: 14rpx;
+    margin-bottom: 18rpx;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    height: 76rpx;
+    padding: 0 22rpx;
+    font-size: 25rpx;
+    color: @text;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    border-radius: @radius-sm;
+  }
+
+  &__add {
+    flex: none;
+    padding: 0 32rpx;
+    height: 76rpx;
+    line-height: 76rpx;
+    text-align: center;
+    font-size: 25rpx;
+    font-weight: 700;
+    color: #ffffff;
+    border-radius: @radius-sm;
+    background: @grad-135;
+
+    &.is-off {
+      opacity: 0.45;
+    }
+  }
+
+  &__empty {
+    padding: 36rpx 0 22rpx;
+    text-align: center;
+    font-size: 23rpx;
+    color: @text-faint;
+  }
+
+  &__tip {
+    margin-top: 18rpx;
+    font-size: 21rpx;
+    line-height: 1.6;
+    color: @text-faint;
+  }
+}
+
+.ph {
+  color: @text-faint;
+  font-size: 24rpx;
+}
+
+/* 同步状态徽标 */
+.sync {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 6rpx 16rpx;
+  border-radius: @radius-pill;
+  font-size: 20rpx;
+  color: @text-faint;
+  background: @card-strong;
+  border: 1rpx solid @border-soft;
+
+  &__dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+    background: @text-faint;
+  }
+
+  &.is-on {
+    color: @pine-deep;
+
+    .sync__dot {
+      background: #2f9e6f;
+      box-shadow: 0 0 0 4rpx rgba(47, 158, 111, 0.18);
+    }
+  }
+
+  &.is-local {
+    color: @text-faint;
+
+    .sync__dot {
+      background: #d09a1e;
+      box-shadow: 0 0 0 4rpx rgba(208, 154, 30, 0.16);
+    }
+  }
+}
+
+/* 进度条 */
+.bar2 {
+  height: 8rpx;
+  border-radius: @radius-pill;
+  background: rgba(34, 48, 46, 0.08);
+  overflow: hidden;
+
+  &__fill {
+    height: 100%;
+    border-radius: @radius-pill;
+    background: @grad;
+    transition: width 0.25s;
+  }
+}
+
+/* 打包清单的分类分组 */
+.pgroup {
+  & + & {
+    margin-top: 20rpx;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4rpx;
+    margin-bottom: 2rpx;
+  }
+
+  &__name {
+    position: relative;
+    padding-left: 16rpx;
+    font-size: 23rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    color: @pine-deep;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 5rpx;
+      height: 20rpx;
+      margin-top: -10rpx;
+      border-radius: 3rpx;
+      background: @grad;
+    }
+  }
+
+  &__meta {
+    font-size: 20rpx;
+    color: @text-faint;
+  }
+}
+
+/* 打包条目 */
+.gitem {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  margin-top: 12rpx;
+  border-radius: @radius-sm;
+  background: @card-strong;
+  border: 1rpx solid @border-soft;
+
+  &__check {
+    flex: none;
+    width: 40rpx;
+    height: 40rpx;
+    border-radius: @radius-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1rpx solid @border;
+    background: @card;
+  }
+
+  &__name {
+    flex: 1;
+    min-width: 0;
+    font-size: 25rpx;
+    line-height: 1.5;
+    color: @text;
+  }
+
+  &__who {
+    flex: none;
+    font-size: 20rpx;
+    color: @text-faint;
+  }
+
+  &__del {
+    flex: none;
+    width: 44rpx;
+    height: 44rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &.is-done {
+    opacity: 0.58;
+
+    .gitem__name {
+      text-decoration: line-through;
+    }
+
+    .gitem__check {
+      background: @grad-135;
+      border-color: transparent;
+    }
+  }
+}
+
+/* ============ 07 花费统计 ============ */
+/* 注意：.tt 是「已记录总花费」大数字块，别与其它缩写混用 */
+.tt {
+  margin: 14rpx 0 18rpx;
+  padding: 22rpx 24rpx;
+  border-radius: @radius-sm;
+  background: @pine-soft;
+  border: 1rpx solid rgba(30, 107, 90, 0.2);
+
+  &__label {
+    display: block;
+    font-size: 22rpx;
+    color: @text-dim;
+  }
+
+  &__num {
+    display: block;
+    margin-top: 6rpx;
+    font-size: 52rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+    .fg-grad-text();
+  }
+
+  &__meta {
+    display: block;
+    margin-top: 8rpx;
+    font-size: 21rpx;
+    color: @text-faint;
+  }
+}
+
+.ccats {
+  margin-bottom: 20rpx;
+
+  &__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16rpx;
+    margin-bottom: 14rpx;
+  }
+
+  &__title {
+    font-size: 24rpx;
+    font-weight: 700;
+    color: @text;
+  }
+
+  &__hint {
+    font-size: 20rpx;
+    color: @text-faint;
+  }
+}
+
+.ccat {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+
+  &__name {
+    flex: none;
+    width: 130rpx;
+    font-size: 22rpx;
+    color: @text-dim;
+  }
+
+  &__bar {
+    flex: 1;
+    min-width: 0;
+    height: 10rpx;
+    border-radius: @radius-pill;
+    background: rgba(34, 48, 46, 0.08);
+    overflow: hidden;
+  }
+
+  &__fill {
+    height: 100%;
+    border-radius: @radius-pill;
+    background: @grad;
+  }
+
+  &__num {
+    flex: none;
+    width: 130rpx;
+    text-align: right;
+    font-size: 22rpx;
+    color: @clay;
+  }
+
+  // 未记账的分类：整行压灰，但仍占位，方便对照 7 大类
+  &.is-zero {
+    .ccat__name,
+    .ccat__num {
+      color: @text-faint;
+    }
+
+    .ccat__fill {
+      background: @border;
+    }
+  }
+}
+
+.cform {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-bottom: 20rpx;
+
+  &__amount,
+  &__note,
+  &__cat {
+    height: 76rpx;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border;
+  }
+
+  &__amount {
+    width: 180rpx;
+    flex: none;
+    padding: 0 20rpx;
+    font-size: 25rpx;
+    color: @text;
+  }
+
+  &__note {
+    flex: 1;
+    min-width: 240rpx;
+    padding: 0 20rpx;
+    font-size: 25rpx;
+    color: @text;
+  }
+
+  &__cat {
+    flex: none;
+    width: 190rpx;
+  }
+
+  &__catbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8rpx;
+    // 高度写实，不用 height:100% —— picker 内部有一层包装节点，百分比高度相对它算不出来，
+    // 容器会塌成内容高度、内容贴顶（症状就是「门票」上下不居中，而右侧靠 line-height 的「记一笔」没事）
+    height: 76rpx;
+    padding: 0 18rpx;
+    font-size: 25rpx;
+    color: @text;
+  }
+
+  &__add {
+    flex: 1;
+    min-width: 200rpx;
+    height: 76rpx;
+    line-height: 76rpx;
+    text-align: center;
+    font-size: 25rpx;
+    font-weight: 700;
+    color: #ffffff;
+    border-radius: @radius-sm;
+    background: @grad-135;
+  }
+}
+
+.clist {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+
+  // 折叠头条：笔数一多就收起明细，只留这一行
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 12rpx;
+    padding: 20rpx 22rpx;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border;
+  }
+
+  &__btn-t {
+    flex: 1;
+    min-width: 0;
+    font-size: 24rpx;
+    font-weight: 700;
+    color: @pine-deep;
+    letter-spacing: 1rpx;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12rpx;
+  }
+
+  // 筛到某一类却一条都没有时的兜底（正常不出现：loadCosts 会把失效的分类回落「全部」）
+  &__none {
+    padding: 20rpx 0;
+    text-align: center;
+    font-size: 22rpx;
+    color: @text-faint;
+  }
+}
+
+/* 分类筛选条：只列有记录的分类 + 「全部」，选中走青绿（本区块的主交互色） */
+.cfilt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+
+  &__chip {
+    padding: 10rpx 22rpx;
+    border-radius: @radius-pill;
+    font-size: 23rpx;
+    color: @text-dim;
+    background: @card-strong;
+    border: 1rpx solid @border;
+
+    &.is-on {
+      font-weight: 700;
+      color: @pine-deep;
+      background: @pine-soft;
+      border-color: rgba(30, 107, 90, 0.28);
+    }
+  }
+}
+
+.citem {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  padding: 16rpx 20rpx;
+  border-radius: @radius-sm;
+  background: @card-strong;
+  border: 1rpx solid @border-soft;
+
+  &__amt {
+    flex: none;
+    min-width: 130rpx;
+    font-size: 28rpx;
+    font-weight: 700;
+    color: @clay;
+  }
+
+  &__note {
+    flex: 1;
+    min-width: 0;
+    font-size: 25rpx;
+    color: @text;
+  }
+
+  &__tag {
+    flex: none;
+    padding: 4rpx 14rpx;
+    border-radius: @radius-pill;
+    font-size: 20rpx;
+    color: @pine-deep;
+    background: @pine-soft;
+    border: 1rpx solid rgba(30, 107, 90, 0.28);
+  }
+
+  &__date {
+    flex: none;
+    font-size: 20rpx;
+    color: @text-faint;
+  }
+
+  &__del {
+    flex: none;
+    width: 44rpx;
+    height: 44rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ==================== 07 交通记录（手动记时间并入行程） ==================== */
+/* 语义色沿用「陶土棕 = 交通」：日期 / 时间 / 选中的方式都走 @clay */
+.tform {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+  margin-bottom: 20rpx;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 14rpx;
+  }
+
+  &__pick {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10rpx;
+    height: 76rpx;
+    padding: 0 20rpx;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    font-size: 25rpx;
+    color: @text;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+
+    &.is-empty {
+      color: @text-faint;
+      font-family: inherit;
+    }
+  }
+
+  &__modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12rpx;
+  }
+
+  &__in {
+    flex: 1;
+    min-width: 0;
+    height: 76rpx;
+    padding: 0 20rpx;
+    border-radius: @radius-sm;
+    background: @card-strong;
+    border: 1rpx solid @border;
+    font-size: 25rpx;
+    color: @text;
+  }
+
+  &__arrow {
+    flex: none;
+    font-size: 26rpx;
+    color: @clay;
+  }
+
+  &__add {
+    flex: none;
+    width: 190rpx;
+    height: 76rpx;
+    line-height: 76rpx;
+    text-align: center;
+    font-size: 25rpx;
+    font-weight: 700;
+    color: #ffffff;
+    border-radius: @radius-sm;
+    background: @grad-135;
+  }
+}
+
+.tchip {
+  padding: 10rpx 22rpx;
+  border-radius: @radius-pill;
+  font-size: 23rpx;
+  color: @text-dim;
+  background: @card-strong;
+  border: 1rpx solid @border;
+
+  &.is-on {
+    font-weight: 700;
+    color: @clay;
+    background: @clay-soft;
+    border-color: rgba(180, 85, 45, 0.45);
+  }
+}
+
+.tlist {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.titem {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: @radius-sm;
+  background: @card-strong;
+  border: 1rpx solid @border-soft;
+
+  &__when {
+    flex: none;
+    min-width: 150rpx;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__date {
+    font-size: 20rpx;
+    color: @text-faint;
+  }
+
+  &__time {
+    font-size: 28rpx;
+    font-weight: 700;
+    color: @clay;
+    font-family: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', ui-monospace, monospace;
+  }
+
+  &__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__c {
+    display: block;
+    font-size: 25rpx;
+    line-height: 1.5;
+    color: @text;
+  }
+
+  &__sub {
+    display: block;
+    margin-top: 4rpx;
+    font-size: 21rpx;
+    color: @text-faint;
+  }
+
+  /* 来源。只填名称时是行灰字；粘了小程序链接才变成可点的胶囊（陶土棕 = 交通） */
+  &__src {
+    display: inline-flex;
+    align-items: center;
+    gap: 8rpx;
+    margin-top: 8rpx;
+    font-size: 21rpx;
+    color: @text-faint;
+
+    &.is-go {
+      padding: 4rpx 16rpx;
+      border-radius: @radius-pill;
+      color: @clay;
+      background: @clay-soft;
+      border: 1rpx solid rgba(180, 85, 45, 0.45);
+    }
+  }
+
+  &__src-t {
+    max-width: 380rpx;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__go {
+    font-size: 20rpx;
+    font-weight: 700;
+    letter-spacing: 1rpx;
+  }
+
+  &__day {
+    flex: none;
+    padding: 4rpx 14rpx;
+    border-radius: @radius-pill;
+    font-size: 20rpx;
+    color: @pine-deep;
+    background: @pine-soft;
+    border: 1rpx solid rgba(30, 107, 90, 0.28);
+  }
+
+  &__del {
+    flex: none;
+    width: 44rpx;
+    height: 44rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ======================= 页脚（票价来源与免责） ======================= */
+.foot {
+  padding: 36rpx @page-pad 12rpx;
+
+  &__p {
+    display: block;
+    font-size: 20rpx;
+    line-height: 1.7;
+    color: @text-faint;
+
+    & + & {
+      margin-top: 8rpx;
+    }
+  }
 }
