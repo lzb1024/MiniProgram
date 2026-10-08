@@ -1,0 +1,11 @@
+{"amount":1480,"note":"厦门-成都","category":"机票","who":"同行人","createdAt":{"$date":"2026-09-13T02:00:00.000Z"}}
+{"amount":1380,"note":"成都-厦门","category":"机票","who":"同行人","createdAt":{"$date":"2026-09-13T02:01:00.000Z"}}
+{"amount":567,"note":"29号-1号 九寨沟民宿","category":"住宿","who":"同行人","createdAt":{"$date":"2026-09-13T02:02:00.000Z"}}
+{"amount":547,"note":"1号-3号酒店","category":"住宿","who":"同行人","createdAt":{"$date":"2026-09-13T02:03:00.000Z"}}
+{"amount":516,"note":"26号-28号 四姑娘山民宿","category":"住宿","who":"同行人","createdAt":{"$date":"2026-09-13T02:04:00.000Z"}}
+{"amount":195,"note":"25号晚酒店","category":"住宿","who":"同行人","createdAt":{"$date":"2026-09-13T02:05:00.000Z"}}
+{"amount":174,"note":"28号晚酒店","category":"住宿","who":"同行人","createdAt":{"$date":"2026-09-13T02:06:00.000Z"}}
+{"amount":400,"note":"四姑娘山门票","category":"门票","who":"同行人","createdAt":{"$date":"2026-09-13T02:07:00.000Z"}}
+{"amount":170,"note":"熊猫基地","category":"门票","who":"同行人","createdAt":{"$date":"2026-09-13T02:08:00.000Z"}}
+{"amount":248,"note":"成都-四姑娘山大巴","category":"当地交通","who":"同行人","createdAt":{"$date":"2026-09-13T02:09:00.000Z"}}
+{"amount":262,"note":"pocket租赁","category":"其他","who":"同行人","createdAt":{"$date":"2026-09-13T02:10:00.000Z"}}

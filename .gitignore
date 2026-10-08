@@ -109,3 +109,23 @@ miniprogram_npm
 .idea
 
 project.private.config.json
+
+# ---- 本项目补充 ----
+# WorkBuddy 的工具目录：脚本与 memory 记录要进仓库（换机后仍能跑校验），
+# 但运行产物/日志是本机临时输出，不进。
+.workbuddy/_out-*.txt
+.workbuddy/_*.log
+.workbuddy/_sizes.txt
+.workbuddy/_content-check.txt
+.workbuddy/_removed/
+.workbuddy/plans/
+.workbuddy/_verify-*.json
+.workbuddy/_xlsx-verify.json
+.workbuddy/_import-verify.json
+
+# 临时探测文件
+_tmp-ls.txt
+
+# 误建目录：Windows 路径把反斜杠当成目录名留下的垃圾
+#（正确的生成脚本在 tools/gen-costs-xlsx.py）
+.\*.ref/
