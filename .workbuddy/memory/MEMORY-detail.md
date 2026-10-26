@@ -198,3 +198,22 @@ picker 组件内部有一层包装节点、高度 auto，子元素 `height: 100%
 - `usingComponents` 必须与 wxml 标签一致（`t-toast`/`t-message`/`t-progress` 最易漏）。
 - **同名 class 别跨区块复用**（班次表当年因此改名 `.sched`）。
 - `wx.pageScrollTo` 别用裸 selector / `offsetTop`，自查 `boundingClientRect` + `scrollOffset` 再减吸顶条高度。
+
+### 模块引用：一律用 `~/` 别名，禁用 `../../`
+2026-10-23 踩坑（体重页白屏两天）：`pages/weight/index.js` 用 `require('../../utils/weight')`，
+开发者工具报 `can not find module : , require args is ../../utils/weight` —— **模块名是空的**。
+文件存在、`node --check` 通过、无 BOM、路径写法与能跑的 `pages/mahjong` 完全一致，
+清缓存 / 关掉热重载 / 关掉「过滤无依赖文件」都没用。改走 `app.json` 里已配的
+`resolveAlias: {"~/*": "/*"}` → `require('~/utils/weight')`，**立刻恢复**。
+（官方社区同类记录：`module 'xxx.js' is not defined, require args is 'xxx.js'`，
+解法就是「别用相对路径，改根路径 / 别名」或「关掉工具重开」。）
+**规则：项目内新增文件互相引用一律写 `~/utils/xxx`、`~/api/xxx`，不再写 `../../`。**
+离线自检脚本里的假 `require` 匹配器要能匹配 `~/` 开头的串（用 `indexOf` 或 `/utils\/weight$/`）。
+
+### 行程封面（static/cover-*.png）
+`mock/trips/index.js` 的 `cover` 指向 `/static/cover-chuanxi.png`、`/static/cover-changsha.png`，
+**这两个文件是 2026-10-23 才补的**（此前一直 404，靠 `.pcard__cover` 的 `@grad-135` 兜底，界面看不出坏）。
+由 `.workbuddy/_gen-trip-covers.py` 用 Pillow 直绘（1200x490，青绿→雪峰蓝对角渐变 + 低透明度白色剪影：
+川西=三层山脊+雪线+淡月，长沙=三拱桥+江面+天际线+暖月）。
+**别手改 PNG**，改脚本重跑；裁剪比是 2.45:1，卡片上是 `height:260rpx` + `aspectFill`，
+图上有 `.pcard__veil` 压暗层，所以剪影必须低透明度，否则白字读不清。

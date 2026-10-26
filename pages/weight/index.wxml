@@ -1,0 +1,337 @@
+<!--
+  pages/weight/index.wxml — 体重追踪（常用工具）
+
+  移植自网页版 weight-tracker。navigationStyle: custom，自带返回条，
+  顶部留白 = 状态栏 + 呼吸位（同 pages/zhufugui 的做法）。
+
+  区块顺序：我/TA → 月份 → 添加记录 → 体重/体脂统计 → 趋势图 → 本月记录
+           → 智能分析 → BMI（按需展开）→ 数据管理
+-->
+<view class="wt fg-theme">
+  <view class="wt__top" style="height:{{ statusTop }}px"></view>
+
+  <view class="wt__nav">
+    <view class="wt__back" bindtap="onBackNav" hover-class="is-hover">
+      <t-icon name="chevron-left" size="40rpx" color="#22302E" />
+    </view>
+  </view>
+
+  <view class="wt__head">
+    <view class="wt__kicker">
+      <view class="wt__dot"></view>
+      <text>常用工具</text>
+      <view class="wsync {{ online === true ? 'is-on' : online === false ? 'is-off' : 'is-wait' }}">
+        <text>{{ online === true ? '已同步' : online === false ? '仅本机' : '同步中' }}</text>
+      </view>
+    </view>
+    <view class="wt__title">体重追踪</view>
+    <view class="wt__sub">体重与体脂一起记，看得到趋势才算数</view>
+  </view>
+
+  <!-- 谁的数据 -->
+  <view class="wseg">
+    <view class="wseg__it {{ user === 'me' ? 'is-on' : '' }}" data-user="me" bindtap="onUser">我</view>
+    <view class="wseg__it {{ user === 'ta' ? 'is-on' : '' }}" data-user="ta" bindtap="onUser">TA</view>
+  </view>
+
+  <!-- 月份 -->
+  <view class="wmonth">
+    <view class="wmonth__btn" bindtap="onPrevMonth" hover-class="is-hover">
+      <t-icon name="chevron-left" size="34rpx" color="#5A6B66" />
+    </view>
+    <view class="wmonth__mid">
+      <view class="wmonth__label">{{ monthLabel }}</view>
+      <view class="wmonth__meta">
+        <text class="wmonth__now" wx:if="{{ isThisMonth }}">本月</text>
+        <text>{{ monthCount ? monthCount + ' 条记录' : '还没有记录' }}</text>
+      </view>
+    </view>
+    <view class="wmonth__btn" bindtap="onNextMonth" hover-class="is-hover">
+      <t-icon name="chevron-right" size="34rpx" color="#5A6B66" />
+    </view>
+  </view>
+
+  <!-- 空态提示：导入入口已下线（2026-10-23 用户要求隐藏），这里只留一句引导 -->
+  <view class="wbanner" wx:if="{{ isEmpty }}">
+    <view class="wbanner__main">
+      <view class="wbanner__t">还没有任何记录</view>
+      <view class="wbanner__d">在下面填一条，就能看到趋势了</view>
+    </view>
+  </view>
+
+  <!-- ============ 添加记录 ============ -->
+  <view class="wcard">
+    <view class="wcard__title">添加记录</view>
+    <view class="wcard__hint">同一天再存一次就覆盖，不会留两条</view>
+
+    <picker mode="date" value="{{ formDate }}" end="{{ today }}" bindchange="onFormDate">
+      <view class="wcell wcell--pick">
+        <text class="wcell__k">日期</text>
+        <view class="wcell__r">
+          <text class="wcell__v">{{ formDate }}</text>
+          <t-icon name="chevron-right" size="30rpx" color="#8C9A94" />
+        </view>
+      </view>
+    </picker>
+
+    <view class="wrow">
+      <view class="wfield">
+        <text class="wfield__k">体重（斤）</text>
+        <input
+          class="wfield__in"
+          type="digit"
+          value="{{ formWeight }}"
+          placeholder="如 155.0"
+          placeholder-class="wfield__ph"
+          bindinput="onFormWeight"
+        />
+      </view>
+      <view class="wfield">
+        <text class="wfield__k">体脂率（%）</text>
+        <input
+          class="wfield__in"
+          type="digit"
+          value="{{ formFat }}"
+          placeholder="可留空"
+          placeholder-class="wfield__ph"
+          bindinput="onFormFat"
+        />
+      </view>
+    </view>
+
+    <view class="wbtn wbtn--main" bindtap="onSave" hover-class="is-hover">保存</view>
+  </view>
+
+  <!-- ============ 体重统计 ============ -->
+  <view class="wsec">
+    <view class="wsec__title">体重</view>
+    <view class="wgrid">
+      <view class="wstat">
+        <text class="wstat__k">当前体重</text>
+        <view class="wstat__v is-w">{{ stat.latestW || '-' }}<text class="wstat__u" wx:if="{{ stat.latestW }}">斤</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.max }}</text>
+        <view class="wstat__v">{{ stat.maxW || '-' }}<text class="wstat__u" wx:if="{{ stat.maxW }}">斤</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.min }}</text>
+        <view class="wstat__v">{{ stat.minW || '-' }}<text class="wstat__u" wx:if="{{ stat.minW }}">斤</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.spread }}</text>
+        <view class="wstat__v">{{ stat.spreadW || '-' }}<text class="wstat__u" wx:if="{{ stat.spreadW }}">斤</text></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 体脂统计 ============ -->
+  <view class="wsec">
+    <view class="wsec__title">体脂</view>
+    <view class="wgrid">
+      <view class="wstat">
+        <text class="wstat__k">当前体脂</text>
+        <view class="wstat__v is-f">{{ stat.latestF || '-' }}<text class="wstat__u" wx:if="{{ stat.latestF }}">%</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.maxF }}</text>
+        <view class="wstat__v">{{ stat.maxF || '-' }}<text class="wstat__u" wx:if="{{ stat.maxF }}">%</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.minF }}</text>
+        <view class="wstat__v">{{ stat.minF || '-' }}<text class="wstat__u" wx:if="{{ stat.minF }}">%</text></view>
+      </view>
+      <view class="wstat">
+        <text class="wstat__k">{{ statLabels.spreadF }}</text>
+        <view class="wstat__v">{{ stat.spreadF || '-' }}<text class="wstat__u" wx:if="{{ stat.spreadF }}">%</text></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 趋势图 ============ -->
+  <view class="wcard">
+    <view class="wcard__bar">
+      <view class="wcard__title">趋势</view>
+      <view class="wseg wseg--sm">
+        <view class="wseg__it {{ mode === 'weight' ? 'is-on' : '' }}" data-mode="weight" bindtap="onMode">体重</view>
+        <view class="wseg__it {{ mode === 'fat' ? 'is-on' : '' }}" data-mode="fat" bindtap="onMode">体脂</view>
+        <view class="wseg__it {{ mode === 'all' ? 'is-on' : '' }}" data-mode="all" bindtap="onMode">全部</view>
+      </view>
+    </view>
+
+    <!-- 点趋势图本身才进横屏（「全部」只是切图表内容，不自动跳） -->
+    <view class="wchart" bindtap="onFullscreen" hover-class="is-hover">
+      <canvas type="2d" id="wtChart" class="wchart__cv"></canvas>
+    </view>
+
+    <view class="wlegend">
+      <view class="wlegend__it" wx:if="{{ showW }}">
+        <view class="wlegend__dot is-w"></view>
+        <text>体重（斤）</text>
+      </view>
+      <view class="wlegend__it" wx:if="{{ showF }}">
+        <view class="wlegend__dot is-f"></view>
+        <text>体脂（%）</text>
+      </view>
+      <text class="wlegend__hint">{{ mode === 'all' ? '含全部历史' : '只看本月' }}</text>
+    </view>
+
+    <view class="wcard__hint" wx:if="{{ mode === 'all' }}">「全部」下图表与上方统计都按历史全部记录算</view>
+  </view>
+
+  <!-- ============ 本月记录 ============ -->
+  <view class="wcard">
+    <view class="wcard__bar">
+      <view class="wcard__title">本月记录</view>
+      <text class="wcard__side">点一行改</text>
+    </view>
+
+    <view class="wempty" wx:if="{{ !records.length }}">本期还没有记录，上面加一条</view>
+
+    <view
+      class="wrec"
+      wx:for="{{ records }}"
+      wx:key="id"
+      data-id="{{ item.id }}"
+      bindtap="onOpenEdit"
+      hover-class="is-hover-row"
+    >
+      <view class="wrec__date">
+        <text class="wrec__md">{{ item.md }}</text>
+        <text class="wrec__wd">{{ item.wd }}</text>
+      </view>
+      <view class="wrec__w">{{ item.weight }}<text class="wrec__u">斤</text></view>
+      <view class="wrec__f">{{ item.fat }}</view>
+      <view class="wrec__badge is-{{ item.tone }}" wx:if="{{ item.badge }}">{{ item.badge }}</view>
+      <view class="wrec__pen">
+        <t-icon name="edit" size="28rpx" color="#8C9A94" />
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 智能分析 ============ -->
+  <view class="wcard wcard--ana" wx:if="{{ analysis }}">
+    <view class="wcard__bar">
+      <view class="wcard__title">智能分析</view>
+      <text class="wcard__side">按本月 {{ analysis.count }} 条</text>
+    </view>
+    <view class="ana">
+      <view class="ana__lead">
+        本月体重趋势<text class="ana__tag is-{{ analysis.tone }}">{{ analysis.text }}</text>，平均每周变化 {{ analysis.weeklyAbs }} 斤。
+      </view>
+      <view class="ana__p" wx:for="{{ analysis.notes }}" wx:key="index">{{ item }}</view>
+      <view class="ana__foot">跨度 {{ analysis.days }} 天，按首尾两条记录折算，仅供参考</view>
+    </view>
+  </view>
+
+  <!-- ============ BMI ============ -->
+  <view class="wcard" id="bmiCard" wx:if="{{ bmiOn }}">
+    <view class="wcard__title">BMI 计算器</view>
+    <view class="wcard__hint">体重按斤填，内部会先折成公斤</view>
+    <view class="wrow">
+      <view class="wfield">
+        <text class="wfield__k">身高（cm）</text>
+        <input
+          class="wfield__in"
+          type="digit"
+          value="{{ bmiHeight }}"
+          placeholder="如 170"
+          placeholder-class="wfield__ph"
+          bindinput="onBmiHeight"
+        />
+      </view>
+      <view class="wfield">
+        <text class="wfield__k">体重（斤）</text>
+        <input
+          class="wfield__in"
+          type="digit"
+          value="{{ bmiWeight }}"
+          placeholder="如 155"
+          placeholder-class="wfield__ph"
+          bindinput="onBmiWeight"
+        />
+      </view>
+    </view>
+    <view class="wbtn wbtn--ghost" bindtap="onBmiCalc" hover-class="is-hover">计算</view>
+
+    <view class="bmi" wx:if="{{ bmiResult }}">
+      <view class="bmi__l">
+        <text class="bmi__k">BMI 指数</text>
+        <view class="bmi__v">{{ bmiResult.value }}</view>
+      </view>
+      <view class="bmi__r">
+        <view class="bmi__cat is-{{ bmiResult.tone }}">{{ bmiResult.category }}</view>
+        <text class="bmi__range">{{ bmiResult.range }}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============ 数据管理 ============ -->
+  <view class="wcard">
+    <view class="wcard__title">数据管理</view>
+    <view class="wbtns">
+      <view class="wbtn wbtn--sm" bindtap="onExport" hover-class="is-hover">导出</view>
+      <view class="wbtn wbtn--sm" bindtap="onImport" hover-class="is-hover">从剪贴板导入</view>
+      <view class="wbtn wbtn--sm" bindtap="onToggleBmi" hover-class="is-hover">{{ bmiOn ? '收起 BMI' : 'BMI' }}</view>
+      <view class="wbtn wbtn--sm wbtn--danger" bindtap="onClear" hover-class="is-hover">清空</view>
+    </view>
+    <!-- 「导入内置历史数据」按钮已下线（2026-10-23 用户要求隐藏，数据已导入完毕）。
+         要恢复就取消下面一行的注释，onImportSeed 仍保留在 index.js 里。
+    <view class="wbtn wbtn--sm wbtn--seed" bindtap="onImportSeed" hover-class="is-hover">导入内置历史数据</view>
+    -->
+    <view class="wcard__hint">{{ online ? '记一条就自动同步云端，同账号换手机能拿回来' : '当前只存本机（云端没连上），换手机前先导出' }}</view>
+  </view>
+
+  <view class="wt__bottom"></view>
+
+  <!-- ============ 编辑弹层 ============ -->
+  <view class="wmask" wx:if="{{ editOn }}" bindtap="onCloseEdit" catchtouchmove="noop">
+    <view class="wsheet" catchtap="noop">
+      <view class="wsheet__head">
+        <text class="wsheet__t">编辑记录</text>
+        <view class="wsheet__x" bindtap="onCloseEdit">
+          <t-icon name="close" size="34rpx" color="#8C9A94" />
+        </view>
+      </view>
+
+      <picker mode="date" value="{{ editDate }}" end="{{ today }}" bindchange="onEditDate">
+        <view class="wcell wcell--pick">
+          <text class="wcell__k">日期</text>
+          <view class="wcell__r">
+            <text class="wcell__v">{{ editDate }}</text>
+            <t-icon name="chevron-right" size="30rpx" color="#8C9A94" />
+          </view>
+        </view>
+      </picker>
+
+      <view class="wrow">
+        <view class="wfield">
+          <text class="wfield__k">体重（斤）</text>
+          <input
+            class="wfield__in"
+            type="digit"
+            value="{{ editWeight }}"
+            placeholder-class="wfield__ph"
+            bindinput="onEditWeight"
+          />
+        </view>
+        <view class="wfield">
+          <text class="wfield__k">体脂率（%）</text>
+          <input
+            class="wfield__in"
+            type="digit"
+            value="{{ editFat }}"
+            placeholder="可留空"
+            placeholder-class="wfield__ph"
+            bindinput="onEditFat"
+          />
+        </view>
+      </view>
+
+      <view class="wsheet__btns">
+        <view class="wbtn wbtn--danger" bindtap="onEditDelete" hover-class="is-hover">删除</view>
+        <view class="wbtn wbtn--main" bindtap="onEditSave" hover-class="is-hover">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

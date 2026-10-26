@@ -44,9 +44,11 @@
     </view>
   </view>
 
+  <!-- 页脚数据说明已隐藏（2026-10-23 用户要求）。要恢复就取消下面这段的注释。
   <view class="tools__foot">
-    <text class="tools__foot-p">目前只放了麻将记分，需要别的再往这里加</text>
+    <text class="tools__foot-p">麻将与朱富贵只存本机，体重记录会同步云端</text>
   </view>
+  -->
 
   <view class="tools__bottom"></view>
 </view>

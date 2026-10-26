@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="L&amp;L app icon · dark">
+  <title>L&amp;L 小程序图标 · 深松底</title>
+  <desc>深松底 #101A19，白→薄荷渐变笔画。适合深色场景或想要更沉稳气质时使用。</desc>
+  <defs>
+    <linearGradient id="g" x1="110" y1="130" x2="402" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#D8EDE6"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#101A19"/>
+  <g fill="none" stroke="url(#g)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 132 150 V 380 H 256"/>
+    <path d="M 380 198 V 380 H 256"/>
+  </g>
+</svg>

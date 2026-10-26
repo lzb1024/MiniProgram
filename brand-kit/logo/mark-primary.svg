@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="L&amp;L brand mark">
+  <title>L&amp;L 品牌图标 · 嵌套双 L</title>
+  <desc>一枚大 L 为骨，一枚小 L 缩进其内，构成回响与陪伴。等粗笔画，大圆角收笔，圆润亲和。</desc>
+  <defs>
+    <linearGradient id="mark-grad" x1="110" y1="120" x2="402" y2="402" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E6B5A"/>
+      <stop offset="1" stop-color="#2E6E95"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 深底版把 fill 换成 #101A19；透明版整行删除 -->
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#F7F5EF"/>
+
+  <g fill="none" stroke="url(#mark-grad)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 外层大 L -->
+    <path d="M 138 132 V 378 H 386" stroke-width="74"/>
+    <!-- 内层小 L（缩进同比例，构成第二枚 L） -->
+    <path d="M 228 196 V 300 H 340" stroke-width="50"/>
+  </g>
+</svg>

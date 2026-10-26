@@ -24,6 +24,13 @@ const TOOLS = [
     icon: 'rice',
     url: '/pages/zhufugui/index',
   },
+  {
+    id: 'weight',
+    title: '体重追踪',
+    desc: '记体重与体脂，看月度趋势、波动和分析',
+    icon: 'chart-line-data',
+    url: '/pages/weight/index',
+  },
 ];
 
 Page({

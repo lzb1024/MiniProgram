@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="L&amp;L alt shared stroke">
+  <title>L&amp;L 备选 · 共用中竖</title>
+  <desc>两枚 L 背靠背并立，中间竖笔合二为一。绝对对称，结构最紧凑。</desc>
+  <defs>
+    <linearGradient id="alt1-grad" x1="120" y1="130" x2="392" y2="392" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E6B5A"/>
+      <stop offset="1" stop-color="#2E6E95"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#F7F5EF"/>
+  <g fill="none" stroke="url(#alt1-grad)" stroke-width="72"
+     stroke-linecap="round" stroke-linejoin="round">
+    <!-- 左侧 L：竖笔 + 底笔至中线 -->
+    <path d="M 146 180 V 368"/>
+    <path d="M 146 368 H 256"/>
+    <!-- 右侧 L：镜像 -->
+    <path d="M 366 180 V 368"/>
+    <path d="M 366 368 H 256"/>
+    <!-- 共用中竖（略矮，形成层次） -->
+    <path d="M 256 252 V 368"/>
+  </g>
+</svg>

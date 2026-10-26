@@ -25,8 +25,17 @@ const files = process.argv.slice(2).length
       'pages/home/index.js',
       // 常用工具：麻将记分（2026-10-08 加）
       'pages/mahjong/index.js',
+      // 常用工具：朱富贵、体重追踪（2026-10-23 加）
+      'pages/zhufugui/index.js',
+      'pages/weight/index.js',
+      'pages/weight/chart.js',
       'pages/tools/index.js',
       'utils/mahjong.js',
+      'utils/zhufugui.js',
+      'utils/weight.js',
+      'utils/weight-chart.js',
+      'utils/weight-seed.js',
+      'api/weight.js',
       'preview/_gen-1home.js',
     ];
 

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="L&amp;L mark on dark background">
+  <title>L&amp;L 品牌图标 · 深色背景版</title>
+  <desc>深底反白使用，图形改为纸白到浅薄荷的单色渐变，保证深色环境对比度。</desc>
+  <defs>
+    <linearGradient id="dark-grad" x1="110" y1="120" x2="402" y2="402" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#D8EDE6"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#101A19"/>
+
+  <g fill="none" stroke="url(#dark-grad)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 138 132 V 378 H 386" stroke-width="74"/>
+    <path d="M 228 196 V 300 H 340" stroke-width="50"/>
+  </g>
+</svg>

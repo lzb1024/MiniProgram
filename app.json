@@ -1,5 +1,13 @@
 {
-  "pages": ["pages/index/index", "pages/tools/index", "pages/mahjong/index", "pages/zhufugui/index", "pages/home/index"],
+  "pages": [
+    "pages/index/index",
+    "pages/tools/index",
+    "pages/mahjong/index",
+    "pages/zhufugui/index",
+    "pages/weight/index",
+    "pages/weight/chart",
+    "pages/home/index"
+  ],
   "tabBar": {
     "color": "#8C9A94",
     "selectedColor": "#1E6B5A",

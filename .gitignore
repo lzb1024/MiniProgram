@@ -129,3 +129,7 @@ _tmp-ls.txt
 # 误建目录：Windows 路径把反斜杠当成目录名留下的垃圾
 #（正确的生成脚本在 tools/gen-costs-xlsx.py）
 .\*.ref/
+
+# 本机临时产物（2026-10-26 补）
+.workbuddy/_out-*.css
+.workbuddy/_tmp/

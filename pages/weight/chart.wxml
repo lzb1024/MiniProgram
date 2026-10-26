@@ -1,0 +1,7 @@
+<!-- 横屏看趋势：页面本身**保持竖屏**（不设 pageOrientation，状态栏和胶囊都不动）。
+     整层只有一块 canvas —— 旋转是在 canvas 的坐标系里做的（translate + rotate），
+     不给 canvas 套 CSS transform：容器带 transform 时 canvas 在部分机型上会不绘制（踩过）。
+     没有任何按钮，点任意处关闭；提示文字直接画在图里。 -->
+<view class="wc" bindtap="onBack">
+  <canvas type="2d" id="wcChart" class="wc__cv"></canvas>
+</view>

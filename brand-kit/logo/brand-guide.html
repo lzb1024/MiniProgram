@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L&amp;L 品牌标识规范</title>
+<style>
+  :root{
+    --paper:#F7F5EF; --card:#FFFFFF; --soft:#FBFAF6; --line:#E4E1D5; --line2:#EEECE2;
+    --ink:#22302E; --dim:#5A6B66; --faint:#8C9A94;
+    --pine:#1E6B5A; --sky:#2E6E95; --clay:#B4552D;
+    --grad:linear-gradient(120deg,#1E6B5A,#2E6E95);
+    --serif:Georgia,'Times New Roman','Songti SC','SimSun',serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:56px 32px 96px}
+
+  header{border-bottom:1px solid var(--line);padding-bottom:36px;margin-bottom:56px}
+  .eyebrow{font-size:12px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase;margin-bottom:14px}
+  h1{font-family:var(--serif);font-size:44px;line-height:1.2;margin:0 0 16px;letter-spacing:.01em}
+  .lede{font-size:17px;color:var(--dim);max-width:60ch;margin:0}
+
+  section{margin-bottom:64px}
+  .sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:28px;padding-bottom:14px;border-bottom:1px solid var(--line2)}
+  .sec-num{font-family:var(--serif);font-size:15px;color:var(--pine);font-weight:700;letter-spacing:.08em;flex:none}
+  .sec-title{font-family:var(--serif);font-size:26px;font-weight:700;margin:0}
+  .sec-note{font-size:13px;color:var(--faint);margin-left:auto;flex:none}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
+  .hero-mark{display:flex;justify-content:center;padding:44px 0 32px}
+  .hero-mark img{width:220px;height:220px;display:block}
+
+  .sizes{display:flex;align-items:flex-end;gap:36px;flex-wrap:wrap;padding:12px 4px;justify-content:center}
+  .sz{text-align:center}
+  .sz img{display:block;margin:0 auto 12px}
+  .sz span{font-size:12px;color:var(--faint);letter-spacing:.06em}
+
+  .swatch{border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+  .swatch .chip{height:96px}
+  .swatch .meta{padding:12px 14px;background:var(--card)}
+  .swatch b{display:block;font-size:14px;font-weight:600}
+  .swatch code{font-size:12px;color:var(--dim);font-family:ui-monospace,'SF Mono',Consolas,monospace}
+  .swatch em{display:block;font-style:normal;font-size:12px;color:var(--faint);margin-top:4px}
+
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
+  .duo>div{display:flex;align-items:center;justify-content:center;padding:40px;min-height:200px}
+  .duo img{width:120px;height:120px}
+  .duo .light{background:var(--paper)}
+  .duo .dark{background:#101A19}
+
+  .variant{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;display:flex;flex-direction:column;gap:14px}
+  .variant .pic{background:var(--soft);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:24px}
+  .variant .pic img{width:104px;height:104px}
+  .variant h3{font-size:15px;margin:0;font-weight:600}
+  .variant p{font-size:13px;color:var(--dim);margin:0;line-height:1.7}
+  .tagrow{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{font-size:11px;padding:3px 9px;border-radius:999px;background:#E3EFE9;color:var(--pine);letter-spacing:.02em}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line2);vertical-align:top}
+  th{font-size:12px;color:var(--faint);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  td code{font-family:ui-monospace,'SF Mono',Consolas,monospace;font-size:12.5px;color:var(--pine);background:#E3EFE9;padding:2px 7px;border-radius:6px}
+
+  ul.rules{list-style:none;padding:0;margin:0;font-size:14px;color:var(--dim)}
+  ul.rules li{padding:9px 0 9px 24px;position:relative;border-bottom:1px solid var(--line2)}
+  ul.rules li:last-child{border-bottom:none}
+  ul.rules li::before{content:'';position:absolute;left:2px;top:18px;width:7px;height:7px;border-radius:2px;background:var(--grad)}
+  ul.rules b{color:var(--ink)}
+
+  .do-dont{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .dd{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+  .dd h4{margin:0 0 12px;font-size:13px;letter-spacing:.08em}
+  .dd.ok h4{color:var(--pine)}
+  .dd.no h4{color:var(--clay)}
+
+  .files{font-size:13px}
+  .files tr td:first-child code{background:#EEF3F0}
+  .files tr td:nth-child(2){color:var(--dim)}
+
+  footer{border-top:1px solid var(--line);padding-top:26px;font-size:12.5px;color:var(--faint);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+  @media(max-width:720px){
+    .wrap{padding:36px 20px 64px}
+    h1{font-size:32px}
+    .duo,.do-dont{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Brand Identity · Logo Specification</div>
+    <h1>L&amp;L 品牌标识规范</h1>
+    <p class="lede">一枚大 L 为骨，一枚小 L 缩进其内 —— 同形、同构、同比例。它读作「陪伴」与「回响」：你身边永远有另一个同样的自己。等粗笔画配大圆角，圆润亲和，任何尺寸都不糊。</p>
+  </header>
+
+  <!-- 01 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2 class="sec-title">主标识</h2>
+      <span class="sec-note">推荐方案</span>
+    </div>
+    <div class="card">
+      <div class="hero-mark"><img src="png/mark-transparent-512.png" alt="L&amp;L 主标识"></div>
+      <div class="sizes">
+        <div class="sz"><img src="png/mark-128.png" width="128" height="128" alt="128px"><span>128 px</span></div>
+        <div class="sz"><img src="png/mark-64.png" width="64" height="64" alt="64px"><span>64 px</span></div>
+        <div class="sz"><img src="png/mark-64.png" width="48" height="48" alt="48px"><span>48 px</span></div>
+        <div class="sz"><img src="png/mark-32.png" width="32" height="32" alt="32px"><span>32 px</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2 class="sec-title">风格定位</h2>
+      <span class="sec-note">圆润亲和 · 嵌套构成</span>
+    </div>
+    <div class="card">
+      <p style="margin:0 0 18px;font-size:15px;color:var(--dim)">
+        两个 L 采用<strong style="color:var(--ink)">同形嵌套</strong>：外层笔画 74、内层 50，严格同比例缩小并向右下缩进。转角全部走大圆角（stroke-linecap / linejoin 均为 round），笔画末端是半圆而非平切。
+      </p>
+      <ul class="rules">
+        <li><b>为什么嵌套</b> —— 大 L 是「我」，小 L 是「你」。同形同构意味着两者本质相同、地位对等，只是尺度有别；缩进的方向朝向右下，读起来像小 L 在大 L 的臂弯里，天然带有「被托住」的安全感。</li>
+        <li><b>为什么圆润</b> —— 直角 + 等粗笔画会滑向科技/工具感。改成大圆角后，同一套几何骨架立刻软下来，传递的是「好亲近、可依赖」而非「高效、冷静」。这正是你要的调性。</li>
+        <li><b>为什么好认</b> —— 两个 L 朝向一致、缺口同向，人眼扫一眼就能同时抓住两个字母，不会像「错位/镜像」那类方案需要二次解读。嵌套结构在 32px 下依然成立。</li>
+        <li><b>留白策略</b> —— 图形占画布约 58%，四周留出充足安全区。内层 L 与外层 L 之间的空隙保持均匀，形成干净的呼吸层次。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 03 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2 class="sec-title">配色方案</h2>
+      <span class="sec-note">主色 1 个 + 辅助 2 个</span>
+    </div>
+    <div class="grid g3" style="margin-bottom:20px">
+      <div class="swatch">
+        <div class="chip" style="background:#1E6B5A"></div>
+        <div class="meta"><b>松林青 · 主色</b><code>#1E6B5A</code><em>沉稳、可靠、有生命力</em></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#2E6E95"></div>
+        <div class="meta"><b>雪峰蓝 · 辅助</b><code>#2E6E95</code><em>开阔、远行、信赖</em></div>
+      </div>
+      <div class="swatch">
+        <div class="chip" style="background:#F7F5EF;border-bottom:1px solid var(--line)"></div>
+        <div class="meta"><b>纸白 · 基底</b><code>#F7F5EF</code><em>温润、留白、手账感</em></div>
+      </div>
+    </div>
+    <div class="card">
+      <p style="margin:0 0 16px;font-size:14px;color:var(--dim)">
+        主色只用<strong style="color:var(--ink)"> 1 个</strong>（松林青），雪峰蓝仅作为渐变终点出现，不单独承担识别。两者构成 120° 对角渐变 —— 大 L 落在青绿端、小 L 落在蓝端，让「两个个体」在颜色上也拉开一点层次。
+      </p>
+      <table>
+        <tr><th>用途</th><th>色值</th><th>说明</th></tr>
+        <tr><td>标识主色</td><td><code>#1E6B5A</code></td><td>松林青，渐变起点，大 L 侧</td></tr>
+        <tr><td>标识辅助</td><td><code>#2E6E95</code></td><td>雪峰蓝，渐变终点，小 L 侧</td></tr>
+        <tr><td>深色底反白</td><td><code>#FFFFFF → #D8EDE6</code></td><td>深色环境下改用浅色渐变</td></tr>
+        <tr><td>深色底背景</td><td><code>#101A19</code></td><td>近黑的墨绿，不用纯黑</td></tr>
+        <tr><td>次级 / &amp; 符号</td><td><code>#8C9A94</code></td><td>标准字中的 &amp; 用灰，突出两个 L</td></tr>
+      </table>
+      <p style="margin:18px 0 0;font-size:13px;color:var(--faint)">
+        对比度：松林青 / 纸白 ≈ 6.1:1，雪峰蓝 / 纸白 ≈ 5.2:1，均满足 WCAG AA（正文 4.5:1）。深浅两套背景均已适配。
+      </p>
+    </div>
+  </section>
+
+  <!-- 04 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2 class="sec-title">背景适配</h2>
+      <span class="sec-note">浅色 / 深色双版本</span>
+    </div>
+    <div class="duo">
+      <div class="light"><img src="png/mark-transparent-512.png" alt="浅色背景"></div>
+      <div class="dark"><img src="png/mark-dark-512.png" alt="深色背景"></div>
+    </div>
+  </section>
+
+  <!-- 05 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">组合排版与字体</h2>
+      <span class="sec-note">图标 + 标准字</span>
+    </div>
+    <div class="grid g2" style="margin-bottom:22px">
+      <div class="card" style="display:flex;align-items:center;justify-content:center;padding:30px">
+        <img src="png/lockup-horizontal.png" alt="横版组合" style="width:100%;max-width:420px">
+      </div>
+      <div class="card" style="display:flex;align-items:center;justify-content:center;padding:30px">
+        <img src="png/lockup-vertical.png" alt="竖版组合" style="width:100%;max-width:170px">
+      </div>
+    </div>
+    <div class="card">
+      <table>
+        <tr><th>项目</th><th>规范</th></tr>
+        <tr><td>推荐字体</td><td><b>Inter SemiBold</b>（首选）· Helvetica Neue Medium · 思源黑体 Medium · 系统 PingFang SC / 微软雅黑</td></tr>
+        <tr><td>字重与字距</td><td>字重 600，字距收紧 −3%（letter-spacing: −0.03em）</td></tr>
+        <tr><td>大小写</td><td>两个 L 用大写（L），&amp; 缩小至 70% 并降低一档颜色</td></tr>
+        <tr><td>横版间距</td><td>图标右边缘到标准字左边缘 = 图标宽度的 0.25 倍</td></tr>
+        <tr><td>竖版对齐</td><td>标准字与图标等宽居中，图标在上、文字在下</td></tr>
+        <tr><td>最小尺寸</td><td>横版整体宽 ≥ 120px；图标单独使用 ≥ 32px</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 06 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2 class="sec-title">备选方案</h2>
+      <span class="sec-note">同为圆润取向</span>
+    </div>
+    <div class="grid g3">
+      <div class="variant">
+        <div class="pic"><img src="png/mark-512.png" alt="主方案"></div>
+        <h3>主方案 · 嵌套双 L</h3>
+        <div class="tagrow"><span class="tag">圆润亲和</span><span class="tag">推荐</span></div>
+        <p>大 L 套小 L，同形同构。寓意「陪伴与回响」，两个字母一眼可辨，32px 依然清晰。综合最优。</p>
+      </div>
+      <div class="variant">
+        <div class="pic"><img src="png/alt-sharedstroke-512.png" alt="共用中竖"></div>
+        <h3>备选 · 共用中竖</h3>
+        <div class="tagrow"><span class="tag">绝对对称</span><span class="tag">结构最简</span></div>
+        <p>两枚 L 背靠背并立，中间竖笔合二为一。左右完全对称，重心最稳，气质更偏「并肩而立」。</p>
+      </div>
+      <div class="variant">
+        <div class="pic"><img src="png/alt-arcbase-512.png" alt="圆弧托底"></div>
+        <h3>备选 · 圆弧托底</h3>
+        <div class="tagrow"><span class="tag">最亲和</span><span class="tag">有情绪</span></div>
+        <p>两枚 L 的底笔连成一整条圆弧，中央一点作 &amp; 的暗示。整体像一张笑脸，亲和力最强，但图形语义也最柔。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <h2 class="sec-title">使用规范</h2>
+      <span class="sec-note">Do / Don't</span>
+    </div>
+    <div class="do-dont">
+      <div class="dd ok">
+        <h4>✓ 应该这样做</h4>
+        <ul class="rules">
+          <li>四周留白 ≥ 图形高度的 25%</li>
+          <li>小尺寸下只保留图形，不带文字</li>
+          <li>深色背景切换到反白版本</li>
+          <li>需要单色时使用 <code>#1E6B5A</code> 纯色填充</li>
+          <li>等比缩放，不单独拉伸某一个轴</li>
+        </ul>
+      </div>
+      <div class="dd no">
+        <h4>✗ 不要这样做</h4>
+        <ul class="rules">
+          <li>不要加描边、投影、外发光</li>
+          <li>不要改变内外两层 L 的比例关系</li>
+          <li>不要把两个 L 拆开或旋转</li>
+          <li>不要用第三种品牌色参与渐变</li>
+          <li>不要低于 32px 使用</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08 -->
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <h2 class="sec-title">交付文件</h2>
+      <span class="sec-note">全部位于 brand-kit/logo/</span>
+    </div>
+    <div class="card">
+      <table class="files">
+        <tr><th>文件</th><th>说明</th></tr>
+        <tr><td><code>mark-primary.svg</code></td><td>主标识矢量源文件（浅色底）</td></tr>
+        <tr><td><code>mark-primary-dark.svg</code></td><td>主标识深色底版本</td></tr>
+        <tr><td><code>lockup-horizontal.svg</code></td><td>横版组合（图标 + 标准字）</td></tr>
+        <tr><td><code>lockup-vertical.svg</code></td><td>竖版组合（图标 + 标准字 + 副标语）</td></tr>
+        <tr><td><code>variants/alt-shared-stroke.svg</code></td><td>备选 · 共用中竖</td></tr>
+        <tr><td><code>variants/alt-arc-base.svg</code></td><td>备选 · 圆弧托底</td></tr>
+        <tr><td><code>png/mark-transparent-512.png</code><br><code>png/mark-transparent-64.png</code></td><td>透明背景 PNG，直接用作小程序头像</td></tr>
+        <tr><td><code>png/mark-dark-512.png</code></td><td>深色背景 PNG</td></tr>
+        <tr><td><code>png/mark-32 / 64 / 128 / 512.png</code></td><td>多尺寸 PNG 阶梯</td></tr>
+        <tr><td><code>png/lockup-horizontal.png</code><br><code>png/lockup-vertical.png</code></td><td>组合排版示意（透明底）</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>L&amp;L 品牌标识规范 · 圆润亲和方向</span>
+    <span>色值对接 variable.less 令牌</span>
+  </footer>
+
+</div>
+</body>
+</html>

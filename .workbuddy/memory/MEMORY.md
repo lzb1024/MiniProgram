@@ -9,8 +9,9 @@ appid `wxfd95a21919677707`。**本工作区根 = `E:\3_WorkSpace\MiniProgram`**�
 `.workbuddy/` 下脚本里硬编码的 ROOT 常量要按本工作区改）。
 **有 tabBar 两页**：`pages/index`（旅行攻略，行程列表）+ `pages/tools`（常用工具）；
 **普通页**：`pages/mahjong`（麻将记分）、`pages/zhufugui`（朱富贵火锅计算，两者 2026-10-08 加）、
+`pages/weight`（体重追踪，2026-10-23 加，移植自 `E:\3_WorkSpace\SimpleWeb\weight-tracker`）、
 `pages/home`（行程详情，读 `?trip=xxx`）。
-**`pages/tools` 目前两条工具**（2026-10-08 删掉 5 个占位工具，并把「分组」层拍平为扁平 `TOOLS[]`）。
+**`pages/tools` 目前三条工具**（2026-10-08 删掉 5 个占位工具，并把「分组」层拍平为扁平 `TOOLS[]`）。
 加条目只改 `TOOLS`，wxml 不用动。
 现有行程：**川西**（9.25-10.03，9 天）、**长沙**（11.06-11.08，3 天 2 晚，内容为占位待填）。
 唯一组件 `components/nav` = **空白自定义导航栏**（`t-navbar` 壳 + 玻璃底，z-index 31），只在详情页用。
@@ -101,6 +102,24 @@ mixin：`.fg-theme()` / `.fg-glass()` / `.fg-grad-text()`。禁用 em-dash 与 e
 有 `link` 才出可点胶囊，走 `wx.navigateToMiniProgram({ shortLink })`（不用 appId），
 时间线里的胶囊必须 `catchtap`。字段定义与跳转细节见 detail。
 
+## 体重追踪（pages/weight，2026-10-23 加）
+两个量（体重斤 / 体脂 %）+ 我/TA 双人 + 月份切换 + 趋势图 + 智能分析 + BMI。
+**存储走云数据库**（`api/weight.js`，集合 `weight`，**一人一份文档**：`weight_me` / `weight_ta`，
+每份 `records` 是一个数组），云不可用时安静回落本机 `weight_tracker_v2`，页头胶囊显示「已同步 / 仅本机」。
+**别改成「一条记录一个文档」**：几百条记录下清空/导入要发上百次请求，还会留半份脏数据。
+首次接入（两份文档都不存在）会把本机已有记录推上去；文档存在但为空才算「用户清空过」，
+覆盖前先把本机存一份到 `weight_tracker_v2_bak`。云集合要在控制台新建（见 `config.js` 注释）。
+**`api/weight.js` 是纯 CJS，刻意不 require `utils/cloud`（那是 ESM，跨风格 require 可能拿不到导出 → 白屏）**：
+云环境由 `app.js` onLaunch 初始化，这里只探 `wx.cloud.database()`，探一次缓存结果。
+新记录 id 用 `Date.now().toString(36)+random`，**不要只用 `Date.now()`**（同毫秒连存会撞 id，编辑删错行）。
+纯计算收在 `utils/weight.js`、绘图收在 `utils/weight-chart.js`（canvas 2d 手绘，**不引第三方图表库**），
+页面只做状态与渲染。`utils/weight-seed.js` 是网页版 212 条历史记录（JSON 形状同导出文件），
+供「导入网页版历史数据」用；**不自动灌数据**，空就是空（假数据会污染趋势）。
+**日期一律字符串切分 / `Date.UTC` 解析，禁止 `new Date('YYYY-MM-DD')` 再取本地 `getMonth()`**（会串月）。
+`preview/weight-preview.html` 由 `.workbuddy/_gen-weight-preview.js` 生成（编译同一份 LESS、内联同一份
+`utils/weight.js` + `weight-chart.js`、rpx 按 375 屏折半换 px），**别手改预览**。
+自检：`.workbuddy/_selfcheck-weight.js`（事件/类名/口径/绘图假 ctx 跑一遍/内置数据完整性）。
+
 ## 数据层
 全站走 mock：`isMock:true` + `baseUrl:''`，`app.js` 用 WxMock 接管 `wx.request`。
 **每趟行程**的 `mock/trips/{id}.js` 顶层：`hero / daysDesc / routesDesc / sections / dayTabs / days /
@@ -123,6 +142,14 @@ wxml 取 `s.label` 取不到，渲染成一排**空白方框**（同样不报错
 `mock` 的 `packing.preset` 与它内容一致，但只供「没配云时的本机兜底」与预览渲染，**两处要一起改**。
 `check-json.js` 的 `countJsonLines()` 按内容识别 JSONL、不认文件名，导入文件放根目录就能被认。
 **AI 无法直接往云库写**，最后一步永远要用户自己点（生成导入文件就是那条「控制台」路）。云库细节见 detail。
+
+## 品牌标识（brand-kit/logo/，2026-10-08）
+小程序 Logo = **两枚 L 面对面共用一条基线**（左竖高 150、右竖低 198，刻意错位），
+`stroke-width=52` 全圆收笔，viewBox 512。主色接项目令牌：松林青 `#1E6B5A` → 雪峰蓝 `#2E6E95` 渐变，
+基底纸白 `#F7F5EF`，深色底 `#101A19`。交付 SVG 七个 + PNG + `brand-guide.html`。
+**写含 `&` 的 SVG 属性必须转义成 `&amp;`**（裸 `&` 会让整份 XML 解析失败）。
+PNG 导出**用 Pillow 直绘**（`_pil_render.py` / `_lockup.py`），别走 cairosvg（本机无 cairo）或
+Edge 无头 CDP（沙箱劫持本机端口，坑深）。细节见当天日志与 MEMORY-detail。
 
 ## 交付 / 校验
 - **改完首页内容跑 `.workbuddy/_post.js` 一条龙**：分片 → 预览 → 天气自测 → 全套离线校验，

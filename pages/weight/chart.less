@@ -1,0 +1,22 @@
+@import "../../variable.less";
+
+/* 横屏看趋势：整屏就是一块 canvas，页面不转、canvas 也不套 CSS transform。
+   「横过来」是在 canvas 自己的坐标系里做的（translate + rotate），
+   见 chart.js 的 drawChart —— 容器带 transform 时 canvas 在部分机型上会不绘制。
+   尺寸一律用 px：这里坐标轴换过，用 rpx 会彻底错位。 */
+
+.wc {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: @bg;
+}
+
+.wc__cv {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

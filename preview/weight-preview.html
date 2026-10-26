@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>体重追踪 · 预览 · 综合版小程序</title>
+<style>
+/* ===== 预览外壳（不属于小程序） ===== */
+html, body { margin: 0; padding: 0; background: #e9e6db; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; }
+.phone { width: 390px; margin: 26px auto 60px; background: #F7F5EF; box-shadow: 0 18px 60px rgba(34,48,46,.16); border-radius: 20px; overflow: hidden; }
+.ph-bar { position: sticky; top: 0; z-index: 99; display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; font-size: 11px; color: #8C9A94; background: rgba(247,245,239,.92); backdrop-filter: blur(8px); border-bottom: 1px solid #EEECE2; }
+.ph-bar b { color: #5A6B66; font-weight: 600; }
+.ph-tip { max-width: 390px; margin: 0 auto; padding: 10px 6px 0; font-size: 12px; line-height: 1.7; color: #7d8a83; text-align: center; }
+
+/* ===== 以下为 pages/weight/index.less 的编译产物（rpx 已折半） ===== */
+.fg-tokens {
+  color-scheme: light;
+}
+.wt {
+  min-height: 100vh;
+  background: #f7f5ef;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+.wt__top {
+  flex: none;
+}
+.wt__nav {
+  height: 44px;
+  display: flex;
+  align-items: center;
+}
+.wt__back {
+  width: 32px;
+  height: 32px;
+  margin-left: -6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+.wt__back.is-hover {
+  background: #fbfaf6;
+}
+.wt__head {
+  padding: 4px 0 12px;
+}
+.wt__kicker {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #5a6b66;
+  letter-spacing: 0.5px;
+}
+.wt__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #1e6b5a;
+  margin-right: 6px;
+  flex: none;
+}
+.wt__title {
+  margin-top: 5px;
+  font-size: 26px;
+  line-height: 1.2;
+  color: #22302e;
+  font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
+  font-weight: 600;
+}
+.wt__sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #8c9a94;
+}
+.wt__bottom {
+  height: calc(30px + env(safe-area-inset-bottom));
+}
+/* ============ 同步状态胶囊（标题行右侧） ============ */
+.wsync {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  padding: 1.5px 7px;
+  border-radius: 499.5px;
+  font-size: 10px;
+  letter-spacing: 0;
+}
+.wsync.is-on {
+  background: #e3efe9;
+  color: #1e6b5a;
+}
+.wsync.is-off {
+  background: #f6eae1;
+  color: #b4552d;
+}
+.wsync.is-wait {
+  background: #efece1;
+  color: #8c9a94;
+}
+/* ============ 分段控件（我 / TA、图表模式共用） ============ */
+.wseg {
+  display: flex;
+  padding: 3px;
+  background: #efece1;
+  border-radius: 499.5px;
+  margin-bottom: 12px;
+  /* 图表右上角那个小号，不铺满整行 */
+}
+.wseg__it {
+  flex: 1;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 499.5px;
+  font-size: 16px;
+  color: #5a6b66;
+  transition: all 0.18s ease;
+}
+.wseg__it.is-on {
+  background: #ffffff;
+  color: #1e6b5a;
+  font-weight: 600;
+  box-shadow: 0 0.5px 2px rgba(34, 48, 46, 0.05), 0 2px 8px rgba(34, 48, 46, 0.04);
+}
+.wseg--sm {
+  flex: none;
+  margin-bottom: 0;
+  padding: 2px;
+}
+.wseg--sm .wseg__it {
+  flex: none;
+  height: 28px;
+  padding: 0 11px;
+  font-size: 12px;
+  border-radius: 499.5px;
+}
+/* ============ 月份条 ============ */
+.wmonth {
+  display: flex;
+  align-items: center;
+  padding: 9px 6px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  border: 0.5px solid #e4e1d5;
+  border-radius: 14px;
+  box-shadow: 0 0.5px 2px rgba(34, 48, 46, 0.05), 0 2px 8px rgba(34, 48, 46, 0.04);
+}
+.wmonth__btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex: none;
+}
+.wmonth__btn.is-hover {
+  background: #fbfaf6;
+}
+.wmonth__mid {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+.wmonth__label {
+  font-size: 17px;
+  font-weight: 600;
+  color: #22302e;
+  font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
+  letter-spacing: 0.5px;
+}
+.wmonth__meta {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #8c9a94;
+}
+.wmonth__now {
+  padding: 1px 6px;
+  border-radius: 499.5px;
+  background: #e3efe9;
+  color: #1e6b5a;
+  font-size: 10px;
+}
+/* ============ 空数据迁移提示 ============ */
+.wbanner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 13px;
+  margin-bottom: 12px;
+  background: #e3efe9;
+  border: 0.5px solid #d0e4da;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+.wbanner__main {
+  flex: 1;
+  min-width: 0;
+}
+.wbanner__t {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e6b5a;
+}
+.wbanner__d {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #5a6b66;
+}
+.wbanner__btn {
+  flex: none;
+  height: 30px;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  border-radius: 499.5px;
+  background: #1e6b5a;
+  color: #ffffff;
+  font-size: 12px;
+}
+.wbanner__btn.is-hover {
+  opacity: 0.86;
+}
+/* ============ 卡片 ============ */
+.wcard {
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: #ffffff;
+  border: 0.5px solid #e4e1d5;
+  border-radius: 14px;
+  box-shadow: 0 0.5px 2px rgba(34, 48, 46, 0.05), 0 2px 8px rgba(34, 48, 46, 0.04);
+}
+.wcard__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #22302e;
+}
+.wcard__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.wcard__side {
+  font-size: 11px;
+  color: #8c9a94;
+  flex: none;
+}
+.wcard__hint {
+  margin-top: 7px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #8c9a94;
+}
+.wcard--ana {
+  position: relative;
+  overflow: hidden;
+}
+.wcard--ana::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #1e6b5a, #2e6e95);
+  opacity: 0.7;
+}
+/* ============ 日期选择行 ============ */
+.wcell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wcell--pick {
+  padding: 10px 11px;
+  margin-bottom: 9px;
+  background: #fbfaf6;
+  border-radius: 10px;
+}
+.wcell__k {
+  font-size: 13px;
+  color: #5a6b66;
+}
+.wcell__r {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.wcell__v {
+  font-size: 14px;
+  color: #22302e;
+  font-variant-numeric: tabular-nums;
+}
+/* ============ 两列输入 ============ */
+.wrow {
+  display: flex;
+  gap: 8px;
+}
+.wfield {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px 6px;
+  background: #fbfaf6;
+  border-radius: 10px;
+}
+.wfield__k {
+  display: block;
+  font-size: 11px;
+  color: #8c9a94;
+}
+.wfield__in {
+  height: 28px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #22302e;
+  font-variant-numeric: tabular-nums;
+}
+.wfield__ph {
+  font-size: 13px;
+  font-weight: 400;
+  color: #8c9a94;
+}
+/* ============ 按钮 ============ */
+.wbtn {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 499.5px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.15s ease;
+}
+.wbtn.is-hover {
+  opacity: 0.86;
+}
+.wbtn--main {
+  margin-top: 10px;
+  background: #1e6b5a;
+  color: #ffffff;
+}
+.wbtn--ghost {
+  margin-top: 10px;
+  background: #ffffff;
+  border: 0.5px solid #e4e1d5;
+  color: #1e6b5a;
+}
+.wbtn--danger {
+  background: #f6eae1;
+  color: #b4552d;
+}
+.wbtn--sm {
+  height: 32px;
+  padding: 0 13px;
+  border-radius: 10px;
+  background: #fbfaf6;
+  color: #5a6b66;
+  font-size: 12px;
+  font-weight: 500;
+  flex: none;
+}
+.wbtn--seed {
+  width: 100%;
+  margin-top: 2px;
+  background: #e3efe9;
+  color: #1e6b5a;
+}
+.wbtns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+/* ============ 统计格 ============ */
+.wsec {
+  margin-bottom: 12px;
+}
+.wsec__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 7px 2px;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: #5a6b66;
+}
+.wsec__title::before {
+  content: '';
+  width: 3px;
+  height: 11px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #1e6b5a, #2e6e95);
+}
+.wgrid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -4px;
+}
+.wstat {
+  width: calc(50% - 8px);
+  margin: 0 4px 8px;
+  padding: 10px 11px;
+  background: #ffffff;
+  border: 0.5px solid #eeece2;
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+.wstat__k {
+  display: block;
+  font-size: 11px;
+  color: #8c9a94;
+}
+.wstat__v {
+  margin-top: 4px;
+  font-size: 21px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #22302e;
+  font-variant-numeric: tabular-nums;
+  /* 只有两组的第一格上色，其余保持墨色，免得一片花 */
+}
+.wstat__v.is-w {
+  color: #2e6e95;
+}
+.wstat__v.is-f {
+  color: #b4552d;
+}
+.wstat__u {
+  margin-left: 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #8c9a94;
+}
+/* ============ 趋势图 ============ */
+.wchart {
+  height: 210px;
+  margin: 2px -4px 0;
+}
+.wchart__cv {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.wlegend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 5px;
+  padding: 0 2px;
+}
+.wlegend__it {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #5a6b66;
+}
+.wlegend__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+.wlegend__dot.is-w {
+  background: #2e6e95;
+}
+.wlegend__dot.is-f {
+  background: #b4552d;
+}
+.wlegend__hint {
+  margin-left: auto;
+  font-size: 11px;
+  color: #8c9a94;
+}
+/* ============ 月度记录行 ============ */
+.wrec {
+  display: flex;
+  align-items: center;
+  padding: 11px 2px;
+  border-bottom: 0.5px solid #eeece2;
+}
+.wrec:last-child {
+  border-bottom: none;
+  padding-bottom: 2px;
+}
+.wrec.is-hover-row {
+  background: #fbfaf6;
+}
+.wrec__date {
+  width: 75px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+}
+.wrec__md {
+  font-size: 14px;
+  color: #22302e;
+  font-variant-numeric: tabular-nums;
+}
+.wrec__wd {
+  margin-top: 2px;
+  font-size: 10px;
+  color: #8c9a94;
+}
+.wrec__w {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 700;
+  color: #22302e;
+  font-variant-numeric: tabular-nums;
+}
+.wrec__u {
+  margin-left: 2px;
+  font-size: 10px;
+  font-weight: 400;
+  color: #8c9a94;
+}
+.wrec__f {
+  width: 55px;
+  flex: none;
+  text-align: right;
+  font-size: 13px;
+  color: #5a6b66;
+  font-variant-numeric: tabular-nums;
+}
+.wrec__badge {
+  margin-left: 7px;
+  padding: 1.5px 6px;
+  border-radius: 499.5px;
+  font-size: 10px;
+  flex: none;
+}
+.wrec__badge.is-hi {
+  background: #f6eae1;
+  color: #b4552d;
+}
+.wrec__badge.is-lo {
+  background: #e3efe9;
+  color: #1e6b5a;
+}
+.wrec__pen {
+  width: 22px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0.7;
+}
+.wempty {
+  padding: 18px 0 10px;
+  text-align: center;
+  font-size: 12px;
+  color: #8c9a94;
+}
+/* ============ 智能分析 ============ */
+.ana {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #5a6b66;
+}
+.ana__lead {
+  color: #22302e;
+}
+.ana__tag {
+  margin: 0 3px;
+  font-weight: 600;
+}
+.ana__tag.is-good {
+  color: #1e6b5a;
+}
+.ana__tag.is-flat {
+  color: #2e6e95;
+}
+.ana__tag.is-warn {
+  color: #9a6b00;
+}
+.ana__tag.is-bad {
+  color: #b4552d;
+}
+.ana__p {
+  margin-top: 6px;
+  padding-left: 9px;
+  position: relative;
+}
+.ana__p::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #e4e1d5;
+}
+.ana__foot {
+  margin-top: 8px;
+  font-size: 10px;
+  color: #8c9a94;
+}
+/* ============ BMI ============ */
+.bmi {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 11px 12px;
+  background: #fbfaf6;
+  border-radius: 12px;
+}
+.bmi__k {
+  font-size: 11px;
+  color: #8c9a94;
+}
+.bmi__l {
+  flex: 1;
+  min-width: 0;
+}
+.bmi__v {
+  margin-top: 2px;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #1e6b5a;
+  font-variant-numeric: tabular-nums;
+}
+.bmi__r {
+  text-align: right;
+}
+.bmi__cat {
+  font-size: 13px;
+  font-weight: 600;
+}
+.bmi__cat.is-low {
+  color: #9a6b00;
+}
+.bmi__cat.is-good {
+  color: #1e6b5a;
+}
+.bmi__cat.is-warn {
+  color: #b4552d;
+}
+.bmi__cat.is-bad {
+  color: #b4552d;
+}
+.bmi__range {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  color: #8c9a94;
+}
+/* ============ 编辑弹层 ============ */
+.wmask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(34, 48, 46, 0.45);
+}
+.wsheet {
+  width: 100%;
+  padding: 15px 16px calc(15px + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-radius: 14px 14px 0 0;
+  box-sizing: border-box;
+}
+.wsheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 11px;
+}
+.wsheet__t {
+  font-size: 16px;
+  font-weight: 600;
+  color: #22302e;
+}
+.wsheet__x {
+  width: 28px;
+  height: 28px;
+  margin-right: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+.wsheet__btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 13px;
+}
+.wsheet__btns .wbtn {
+  flex: 1;
+  margin-top: 0;
+}
+
+</style>
+</head>
+<body>
+<div class="ph-tip">静态预览：可直接点「我 / TA」「月份箭头」「体重 / 体脂 / 全部」看变化，用真实历史数据渲染。</div>
+
+<div class="phone">
+  <div class="ph-bar"><b>体重追踪</b><span id="phState"></span></div>
+
+  <div class="wt fg-theme" id="app">
+    <div class="wt__top" style="height:20px"></div>
+
+    <div class="wt__nav">
+      <div class="wt__back" hover-class="is-hover">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22302E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+    </div>
+
+    <div class="wt__head">
+      <div class="wt__kicker"><div class="wt__dot"></div><span>常用工具</span><div class="wsync is-on"><span>已同步</span></div></div>
+      <div class="wt__title">体重追踪</div>
+      <div class="wt__sub">体重与体脂一起记，看得到趋势才算数</div>
+    </div>
+
+    <div class="wseg">
+      <div class="wseg__it is-on" data-user="me">我</div>
+      <div class="wseg__it" data-user="ta">TA</div>
+    </div>
+
+    <div class="wmonth">
+      <div class="wmonth__btn" data-nav="-1">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5A6B66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+      </div>
+      <div class="wmonth__mid">
+        <div class="wmonth__label" id="monthLabel"></div>
+        <div class="wmonth__meta"><span class="wmonth__now" id="monthNow">本月</span><span id="monthCount"></span></div>
+      </div>
+      <div class="wmonth__btn" data-nav="1">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5A6B66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+
+    <div class="wcard">
+      <div class="wcard__title">添加记录</div>
+      <div class="wcard__hint">同一天再存一次就覆盖，不会留两条</div>
+      <div class="wcell wcell--pick">
+        <span class="wcell__k">日期</span>
+        <div class="wcell__r"><span class="wcell__v">2026-10-23</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8C9A94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+      <div class="wrow">
+        <div class="wfield"><span class="wfield__k">体重（斤）</span><div class="wfield__in" style="color:#8C9A94;font-size:13px;font-weight:400;display:flex;align-items:center;">如 155.0</div></div>
+        <div class="wfield"><span class="wfield__k">体脂率（%）</span><div class="wfield__in" style="color:#8C9A94;font-size:13px;font-weight:400;display:flex;align-items:center;">可留空</div></div>
+      </div>
+      <div class="wbtn wbtn--main">保存</div>
+    </div>
+
+    <div class="wsec">
+      <div class="wsec__title">体重</div>
+      <div class="wgrid">
+        <div class="wstat"><span class="wstat__k">当前体重</span><div class="wstat__v is-w" id="stLatestW"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblMax">本月最高</span><div class="wstat__v" id="stMaxW"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblMin">本月最低</span><div class="wstat__v" id="stMinW"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblSpread">月波动</span><div class="wstat__v" id="stSpreadW"></div></div>
+      </div>
+    </div>
+
+    <div class="wsec">
+      <div class="wsec__title">体脂</div>
+      <div class="wgrid">
+        <div class="wstat"><span class="wstat__k">当前体脂</span><div class="wstat__v is-f" id="stLatestF"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblMaxF">本月最高体脂</span><div class="wstat__v" id="stMaxF"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblMinF">本月最低体脂</span><div class="wstat__v" id="stMinF"></div></div>
+        <div class="wstat"><span class="wstat__k" id="lblSpreadF">体脂波动</span><div class="wstat__v" id="stSpreadF"></div></div>
+      </div>
+    </div>
+
+    <div class="wcard">
+      <div class="wcard__bar">
+        <div class="wcard__title">趋势</div>
+        <div class="wseg wseg--sm">
+          <div class="wseg__it is-on" data-mode="weight">体重</div>
+          <div class="wseg__it" data-mode="fat">体脂</div>
+          <div class="wseg__it" data-mode="all">全部</div>
+        </div>
+      </div>
+      <div class="wchart"><canvas id="wtChart" class="wchart__cv"></canvas></div>
+      <div class="wlegend" id="legend"></div>
+      <div class="wcard__hint" id="allHint" style="display:none;">「全部」下图表与上方统计都按历史全部记录算</div>
+    </div>
+
+    <div class="wcard">
+      <div class="wcard__bar">
+        <div class="wcard__title">本月记录</div>
+        <span class="wcard__side">点一行改</span>
+      </div>
+      <div id="recList"></div>
+    </div>
+
+    <div class="wcard wcard--ana" id="anaCard" style="display:none;">
+      <div class="wcard__bar">
+        <div class="wcard__title">智能分析</div>
+        <span class="wcard__side" id="anaSide"></span>
+      </div>
+      <div class="ana">
+        <div class="ana__lead" id="anaLead"></div>
+        <div id="anaNotes"></div>
+        <div class="ana__foot" id="anaFoot"></div>
+      </div>
+    </div>
+
+    <div class="wcard">
+      <div class="wcard__title">BMI 计算器</div>
+      <div class="wcard__hint">体重按斤填，内部会先折成公斤</div>
+      <div class="wrow">
+        <div class="wfield"><span class="wfield__k">身高（cm）</span><div class="wfield__in" style="display:flex;align-items:center;">170</div></div>
+        <div class="wfield"><span class="wfield__k">体重（斤）</span><div class="wfield__in" style="display:flex;align-items:center;">155</div></div>
+      </div>
+      <div class="wbtn wbtn--ghost">计算</div>
+      <div class="bmi">
+        <div class="bmi__l"><span class="bmi__k">BMI 指数</span><div class="bmi__v">26.8</div></div>
+        <div class="bmi__r"><div class="bmi__cat is-warn">超重</div><span class="bmi__range">24 ≤ BMI &lt; 28</span></div>
+      </div>
+    </div>
+
+    <div class="wcard">
+      <div class="wcard__title">数据管理</div>
+      <div class="wbtns">
+        <div class="wbtn wbtn--sm">导出</div>
+        <div class="wbtn wbtn--sm">从剪贴板导入</div>
+        <div class="wbtn wbtn--sm">BMI</div>
+        <div class="wbtn wbtn--sm wbtn--danger">清空</div>
+      </div>
+      <div class="wbtn wbtn--sm wbtn--seed">导入网页版历史数据</div>
+      <div class="wcard__hint">记一条就自动同步云端，同账号换手机能拿回来</div>
+    </div>
+
+    <div class="wt__bottom"></div>
+  </div>
+</div>
+
+<script>
+/* ---- CJS 垫片：把 utils/*.js 原样内联进来用 ---- */
+var __m = {};
+function __def(name, fn) { var mod = { exports: {} }; fn(mod, mod.exports); __m[name] = mod.exports; }
+
+__def('weight', function (module, exports) {
+// utils/weight.js — 体重追踪的纯计算层（不含任何 wx API，可离线自检）
+//
+// 数据形状（与网页版 weight-tracker/data.json 兼容）：
+//   { version: 2, currentUser: 'me' | 'ta', users: { me: [rec], ta: [rec] } }
+//   rec = { id, date: 'YYYY-MM-DD', weight: 斤, bodyFat: % | null }
+//
+// ⚠️ 日期一律按字符串切分 / Date.UTC 解析，绝不用 new Date('2026-03-07')
+//   再取本地 getMonth()：那条路在 UTC 时区以外的表现随环境变，会把记录算到隔壁月。
+
+/* ---------------- 基础 ---------------- */
+
+function pad2(n) {
+  return n < 10 ? '0' + n : '' + n;
+}
+
+/** 'YYYY-MM-DD' → { y, m, d }；非法返回 null */
+function ymd(s) {
+  const p = String(s == null ? '' : s).slice(0, 10).split('-');
+  const y = Number(p[0]);
+  const m = Number(p[1]);
+  const d = Number(p[2]);
+  if (!y || !m || !d) return null;
+  return { y, m, d };
+}
+
+/** 当天日期字符串（本地时区） */
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+}
+
+/** 'YYYY-MM-DD' → UTC 毫秒，仅用于算天数差 */
+function dayMs(s) {
+  const t = ymd(s);
+  return t ? Date.UTC(t.y, t.m - 1, t.d) : null;
+}
+
+const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+
+function weekday(s) {
+  const ms = dayMs(s);
+  if (ms === null) return '';
+  return WEEK[new Date(ms).getUTCDay()];
+}
+
+function monthLabel(y, m) {
+  return y + '年' + m + '月';
+}
+
+function inMonth(r, y, m) {
+  const t = ymd(r && r.date);
+  return !!t && t.y === y && t.m === m;
+}
+
+function byDateAsc(a, b) {
+  return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+}
+
+function byDateDesc(a, b) {
+  return a.date > b.date ? -1 : a.date < b.date ? 1 : 0;
+}
+
+function toNum(v) {
+  if (v === '' || v === null || v === undefined) return null;
+  const n = parseFloat(v);
+  return isNaN(n) ? null : n;
+}
+
+function r1(n) {
+  return Math.round(n * 10) / 10;
+}
+
+/** 1 位小数的展示字符串，整数也补 .0（跟网页版一致） */
+function fmt1(n) {
+  const v = toNum(n);
+  return v === null ? '' : v.toFixed(1);
+}
+
+/* ---------------- 清洗 / 归一 ---------------- */
+
+function cleanRecord(raw, seq) {
+  if (!raw || typeof raw !== 'object') return null;
+  const t = ymd(raw.date);
+  const w = toNum(raw.weight);
+  if (!t || w === null) return null;
+  let f = toNum(raw.bodyFat);
+  // 体脂明显越界的当脏数据处理（0 也视为没填：网页版部分老记录是 0）
+  if (f !== null && (f <= 0 || f > 75)) f = null;
+  return {
+    id: raw.id ? String(raw.id) : 'r' + (Date.now() + (seq || 0)),
+    date: String(raw.date).slice(0, 10),
+    weight: r1(w),
+    bodyFat: f === null ? null : r1(f),
+  };
+}
+
+/** 同一天只留最后一条，输出按日期升序 */
+function dedupe(list) {
+  const map = {};
+  (Array.isArray(list) ? list : []).forEach((raw, i) => {
+    const rec = cleanRecord(raw, i);
+    if (rec) map[rec.date] = rec;
+  });
+  return Object.keys(map)
+    .map((k) => map[k])
+    .sort(byDateAsc);
+}
+
+/**
+ * 归一任意来源的数据：网页导出（{users}）、旧版（{data:[]}）、纯数组都认。
+ * 认不出来返回空壳，绝不抛错（导入失败不该把页面搞崩）。
+ */
+function normalize(obj) {
+  const empty = { me: [], ta: [] };
+  if (Array.isArray(obj)) return { me: dedupe(obj), ta: [] };
+  if (!obj || typeof obj !== 'object') return empty;
+  if (obj.users && typeof obj.users === 'object') {
+    return { me: dedupe(obj.users.me || []), ta: dedupe(obj.users.ta || []) };
+  }
+  if (Array.isArray(obj.data)) return { me: dedupe(obj.data), ta: [] };
+  if (Array.isArray(obj.records)) return { me: dedupe(obj.records), ta: [] };
+  return empty;
+}
+
+function totalCount(users) {
+  if (!users) return 0;
+  return (users.me ? users.me.length : 0) + (users.ta ? users.ta.length : 0);
+}
+
+/* ---------------- 统计 ---------------- */
+
+/** list 必须已按日期升序 */
+function stat(list) {
+  const out = {
+    count: list ? list.length : 0,
+    empty: !list || !list.length,
+    hasFat: false,
+    latestW: '',
+    maxW: '',
+    minW: '',
+    spreadW: '',
+    latestF: '',
+    maxF: '',
+    minF: '',
+    spreadF: '',
+  };
+  if (out.empty) return out;
+
+  out.latestW = fmt1(list[list.length - 1].weight);
+
+  let mx = list[0];
+  let mn = list[0];
+  for (let i = 1; i < list.length; i++) {
+    if (list[i].weight > mx.weight) mx = list[i];
+    if (list[i].weight < mn.weight) mn = list[i];
+  }
+  out.maxW = fmt1(mx.weight);
+  out.minW = fmt1(mn.weight);
+  out.spreadW = fmt1(mx.weight - mn.weight);
+
+  const fats = list.filter((r) => typeof r.bodyFat === 'number' && r.bodyFat !== null);
+  if (fats.length) {
+    out.hasFat = true;
+    out.latestF = fmt1(fats[fats.length - 1].bodyFat);
+    let fx = fats[0];
+    let fn = fats[0];
+    for (let i = 1; i < fats.length; i++) {
+      if (fats[i].bodyFat > fx.bodyFat) fx = fats[i];
+      if (fats[i].bodyFat < fn.bodyFat) fn = fats[i];
+    }
+    out.maxF = fmt1(fx.bodyFat);
+    out.minF = fmt1(fn.bodyFat);
+    out.spreadF = fmt1(fx.bodyFat - fn.bodyFat);
+  }
+  return out;
+}
+
+/**
+ * 趋势判定（至少 3 条才给结论）。
+ * 阈值沿用网页版：按「每周变化多少斤」分档。
+ */
+function trend(list) {
+  if (!list || list.length < 3) return null;
+  const first = list[0];
+  const last = list[list.length - 1];
+  const d0 = dayMs(first.date);
+  const d1 = dayMs(last.date);
+  const days = d0 !== null && d1 !== null && d1 > d0 ? (d1 - d0) / 86400000 : 0;
+  const weekly = days > 0 ? ((last.weight - first.weight) / days) * 7 : 0;
+
+  let key = 'flat';
+  let text = '保持稳定';
+  let tone = 'flat';
+  if (weekly < -0.5) {
+    key = 'down';
+    text = '下降较快';
+    tone = 'good';
+  } else if (weekly < -0.2) {
+    key = 'down-soft';
+    text = '稳步下降';
+    tone = 'good';
+  } else if (weekly < 0.2) {
+    key = 'flat';
+    text = '保持稳定';
+    tone = 'flat';
+  } else if (weekly < 0.5) {
+    key = 'up-soft';
+    text = '小幅上升';
+    tone = 'warn';
+  } else {
+    key = 'up';
+    text = '上升较快';
+    tone = 'bad';
+  }
+
+  const notes = [];
+  if (weekly < -1) notes.push('掉得偏快，注意别把肌肉一起减掉，蛋白质要吃够。');
+  else if (weekly > 0.5) notes.push('体重在往上走，可以加一点有氧或者收一收主食。');
+  else notes.push('变化幅度不大，保持现在的节奏就行。');
+
+  const fats = list.filter((r) => typeof r.bodyFat === 'number' && r.bodyFat !== null);
+  if (fats.length >= 3) {
+    const delta = fats[fats.length - 1].bodyFat - fats[0].bodyFat;
+    if (Math.abs(delta) < 0.2) {
+      notes.push(weekly < -0.2 ? '体脂基本没动，掉的重量里可能含水。' : '体成分比较稳定。');
+    } else {
+      notes.push(
+        '体脂' + (delta < 0 ? '下降' : '上升') + ' ' + fmt1(Math.abs(delta)) + '%，' +
+          (delta < 0 ? '脂肪确实在减少。' : '注意看看饮食结构。'),
+      );
+    }
+  }
+
+  return {
+    weekly,
+    weeklyAbs: fmt1(Math.abs(weekly)),
+    key,
+    text,
+    tone,
+    notes,
+    days: Math.round(days),
+    count: list.length,
+  };
+}
+
+/* ---------------- BMI ---------------- */
+
+function bmi(heightCm, jin) {
+  const h = toNum(heightCm);
+  const w = toNum(jin);
+  if (h === null || h < 100 || h > 250) return { ok: false, reason: '身高请在 100-250cm 之间' };
+  if (w === null || w < 60 || w > 400) return { ok: false, reason: '体重请在 60-400 斤之间' };
+
+  const v = w / 2 / Math.pow(h / 100, 2);
+  let category = '';
+  let range = '';
+  let tone = '';
+  if (v < 18.5) {
+    category = '体重过轻';
+    range = 'BMI < 18.5';
+    tone = 'low';
+  } else if (v < 24) {
+    category = '正常体重';
+    range = '18.5 ≤ BMI < 24';
+    tone = 'good';
+  } else if (v < 28) {
+    category = '超重';
+    range = '24 ≤ BMI < 28';
+    tone = 'warn';
+  } else if (v < 35) {
+    category = '肥胖';
+    range = '28 ≤ BMI < 35';
+    tone = 'bad';
+  } else {
+    category = '重度肥胖';
+    range = 'BMI ≥ 35';
+    tone = 'bad';
+  }
+  return { ok: true, value: v.toFixed(1), category, range, tone };
+}
+
+module.exports = {
+  pad2,
+  ymd,
+  todayStr,
+  dayMs,
+  weekday,
+  monthLabel,
+  inMonth,
+  byDateAsc,
+  byDateDesc,
+  toNum,
+  r1,
+  fmt1,
+  dedupe,
+  normalize,
+  totalCount,
+  stat,
+  trend,
+  bmi,
+};
+
+});
+
+__def('chart', function (module, exports) {
+// utils/weight-chart.js — 体重趋势图绘制（canvas 2d，纯函数，不碰 wx API）
+//
+// 单独拎出来两个原因：
+//   ① pages/weight 的 JS 已经够长，绘图细节不该占满一屏；
+//   ② preview/weight-preview.html 可以内联同一份代码，网页预览和小程序里长得一致。
+//
+// 用法：drawTrend(ctx, { w, h, list, showW, showF })
+//   ctx  已经按 dpr 缩放过的 2d context
+//   w/h  逻辑像素（CSS 像素），不是 canvas.width
+//   list 升序记录 [{ date: 'YYYY-MM-DD', weight, bodyFat }]
+//   showW/showF 画哪条线；bodyFat 为 null 的那天体脂线断开
+
+/* 配色对着 variable.less 的令牌抄（canvas 拿不到 CSS 变量，改主题要同步这里） */
+const COLORS = {
+  sky: '#2E6E95', // 体重：雪峰蓝（信息色）
+  skyFill: 'rgba(46, 110, 149, 0.16)',
+  skyFade: 'rgba(46, 110, 149, 0)',
+  clay: '#B4552D', // 体脂：陶土棕（第二量）
+  grid: '#EEECE2',
+  tick: '#8C9A94',
+};
+
+/** 值域 → 画布范围（单点时上下各撑 1，避免除零） */
+function rangeOf(values) {
+  let min = values[0];
+  let max = values[0];
+  for (let i = 1; i < values.length; i++) {
+    if (values[i] < min) min = values[i];
+    if (values[i] > max) max = values[i];
+  }
+  if (min === max) {
+    min -= 1;
+    max += 1;
+  }
+  const pad = (max - min) * 0.14;
+  return { min: min - pad, max: max + pad };
+}
+
+/** 'YYYY-MM-DD' → { y, m, d }，只切字符串，不碰时区 */
+function ymd(s) {
+  const p = String(s == null ? '' : s).slice(0, 10).split('-');
+  if (p.length !== 3) return null;
+  const y = Number(p[0]);
+  const m = Number(p[1]);
+  const d = Number(p[2]);
+  return y && m && d ? { y, m, d } : null;
+}
+
+/** 圆点：白圈 + 实心，压在线上不会糊成一团 */
+function dot(ctx, x, y, color, r) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function drawHint(ctx, w, h, text) {
+  ctx.font = '12px sans-serif';
+  ctx.fillStyle = COLORS.tick;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, w / 2, h / 2);
+  ctx.textAlign = 'left';
+}
+
+function drawTrend(ctx, opt) {
+  const w = opt.w;
+  const h = opt.h;
+  const list = opt.list || [];
+  const wantFat = !!opt.showF;
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  ctx.font = '10px sans-serif';
+
+  if (!list.length) return drawHint(ctx, w, h, '本期还没有记录');
+
+  // 只看体脂时，没填体脂的那天直接不画
+  const pts = [];
+  list.forEach((r) => {
+    const fat = typeof r.bodyFat === 'number' ? r.bodyFat : null;
+    if (!opt.showW && wantFat && fat === null) return;
+    pts.push({ date: r.date, w: r.weight, f: fat });
+  });
+  // 只有这一种情况会让 pts 变空：只看体脂，而这期一条体脂都没填
+  if (!pts.length) return drawHint(ctx, w, h, '本期还没有体脂数据');
+
+  const wVals = opt.showW ? pts.map((p) => p.w) : [];
+  const fVals = wantFat ? pts.filter((p) => p.f !== null).map((p) => p.f) : [];
+
+  const padL = 30;
+  const both = opt.showW && wantFat;
+  const padR = both ? 32 : 10;
+  const padT = 16;
+  const padB = 24;
+  const iw = w - padL - padR;
+  const ih = h - padT - padB;
+
+  const sw = wVals.length ? rangeOf(wVals) : null;
+  const sf = fVals.length ? rangeOf(fVals) : null;
+
+  const xOf = (i) => (pts.length === 1 ? padL + iw / 2 : padL + (iw * i) / (pts.length - 1));
+  const yOf = (v, s) => padT + ih * (1 - (v - s.min) / (s.max - s.min));
+
+  /* --- 网格与左侧刻度（有体重用体重量程，只有体脂用体脂量程） --- */
+  const left = sw || sf;
+  const span = left.max - left.min;
+  const axisFmt = (v) => (span >= 20 ? v.toFixed(0) : v.toFixed(1));
+
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (ih * i) / 4;
+    ctx.beginPath();
+    ctx.strokeStyle = COLORS.grid;
+    ctx.lineWidth = 1;
+    ctx.moveTo(padL, y);
+    ctx.lineTo(padL + iw, y);
+    ctx.stroke();
+
+    ctx.fillStyle = COLORS.tick;
+    ctx.fillText(axisFmt(left.max - (span * i) / 4), 0, y);
+  }
+
+  /* --- 右侧体脂刻度（只有两条线同时出现时才需要） --- */
+  if (both && sf) {
+    const fspan = sf.max - sf.min;
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      ctx.fillStyle = COLORS.tick;
+      ctx.fillText(fspan >= 20 ? (sf.max - (fspan * i) / 4).toFixed(0) : (sf.max - (fspan * i) / 4).toFixed(1), w, padT + (ih * i) / 4);
+    }
+    ctx.textAlign = 'left';
+  }
+
+  /* --- 体重：面积 + 折线 + 圆点 --- */
+  if (opt.showW) {
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = xOf(i);
+      const y = yOf(p.w, sw);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.lineTo(xOf(pts.length - 1), padT + ih);
+    ctx.lineTo(xOf(0), padT + ih);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, padT, 0, padT + ih);
+    g.addColorStop(0, COLORS.skyFill);
+    g.addColorStop(1, COLORS.skyFade);
+    ctx.fillStyle = g;
+    ctx.fill();
+
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      const x = xOf(i);
+      const y = yOf(p.w, sw);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.strokeStyle = COLORS.sky;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    pts.forEach((p, i) => dot(ctx, xOf(i), yOf(p.w, sw), COLORS.sky, 2.8));
+  }
+
+  /* --- 体脂：没填的那天断开，不硬连 --- */
+  if (wantFat && sf) {
+    let seg = [];
+    const flush = () => {
+      if (seg.length > 1) {
+        ctx.beginPath();
+        seg.forEach((p, k) => (k === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
+        ctx.strokeStyle = COLORS.clay;
+        ctx.lineWidth = 2;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.stroke();
+      }
+      seg.forEach((p) => dot(ctx, p.x, p.y, COLORS.clay, 2.4));
+      seg = [];
+    };
+    pts.forEach((p, i) => {
+      if (p.f === null) return flush();
+      seg.push({ x: xOf(i), y: yOf(p.f, sf) });
+    });
+    flush();
+  }
+
+  /* --- 横轴日期：首尾必出，中间等分，最多 5 个以免挤成一片 --- */
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.ceil((pts.length - 1) / 4));
+  pts.forEach((p, i) => {
+    const last = i === pts.length - 1;
+    if (i !== 0 && !last && i % step !== 0) return;
+    const t = ymd(p.date);
+    if (!t) return;
+    ctx.fillStyle = COLORS.tick;
+    ctx.fillText(t.m + '/' + t.d, xOf(i), padT + ih + 12);
+  });
+  ctx.textAlign = 'left';
+}
+
+module.exports = {
+  COLORS,
+  rangeOf,
+  drawTrend,
+  drawHint,
+};
+
+});
+
+var W = __m.weight;
+var CH = __m.chart;
+var SEED = {"users":{"me":[{"id":"1776655241301","date":"2026-03-07","weight":169.3,"bodyFat":28},{"id":"1776655271167","date":"2026-03-09","weight":171,"bodyFat":28.6},{"id":"1776655550054","date":"2026-03-10","weight":168.7,"bodyFat":28.3},{"id":"1776655719299","date":"2026-03-11","weight":170,"bodyFat":28.4},{"id":"1776655758049","date":"2026-03-12","weight":169.2,"bodyFat":28.6},{"id":"1776655770687","date":"2026-03-13","weight":168.4,"bodyFat":28.5},{"id":"1776655785337","date":"2026-03-16","weight":168.8,"bodyFat":28.3},{"id":"1776655801618","date":"2026-03-17","weight":167.6,"bodyFat":28.7},{"id":"1776655832713","date":"2026-03-18","weight":166.2,"bodyFat":28.3},{"id":"1776655847112","date":"2026-03-19","weight":166.3,"bodyFat":28.3},{"id":"1776655861654","date":"2026-03-20","weight":165.7,"bodyFat":28.3},{"id":"1776655876982","date":"2026-03-21","weight":165.9,"bodyFat":28.2},{"id":"1776733639590","date":"2026-03-23","weight":167.7,"bodyFat":28.2},{"id":"1776733652663","date":"2026-03-24","weight":167.3,"bodyFat":27.9},{"id":"1776733674255","date":"2026-03-25","weight":168,"bodyFat":27.6},{"id":"1776733695748","date":"2026-03-26","weight":167.7,"bodyFat":27.1},{"id":"1776733775476","date":"2026-03-27","weight":166.9,"bodyFat":26.9},{"id":"1776733797779","date":"2026-03-28","weight":167,"bodyFat":27.3},{"id":"1776733811736","date":"2026-03-30","weight":166.1,"bodyFat":27.2},{"id":"1776733823357","date":"2026-03-31","weight":167,"bodyFat":27.7},{"id":"1776733870919","date":"2026-04-01","weight":167.2,"bodyFat":27.4},{"id":"1776733882851","date":"2026-04-02","weight":167.6,"bodyFat":27.1},{"id":"1776733893721","date":"2026-04-03","weight":166.5,"bodyFat":27.1},{"id":"1776733907021","date":"2026-04-07","weight":169.1,"bodyFat":28.2},{"id":"1776733921181","date":"2026-04-08","weight":167.5,"bodyFat":27.9},{"id":"1776733935242","date":"2026-04-09","weight":167.7,"bodyFat":27.8},{"id":"1776733948667","date":"2026-04-10","weight":167.8,"bodyFat":27.7},{"id":"1776733980756","date":"2026-04-13","weight":166.2,"bodyFat":27.6},{"id":"1776733994490","date":"2026-04-14","weight":165,"bodyFat":27.7},{"id":"1776734006109","date":"2026-04-15","weight":162.8,"bodyFat":27.5},{"id":"1776734020229","date":"2026-04-16","weight":164.1,"bodyFat":27.6},{"id":"1776734034489","date":"2026-04-17","weight":163.7,"bodyFat":27.2},{"id":"1776734051579","date":"2026-04-20","weight":163.4,"bodyFat":26.8},{"id":"1776734059757","date":"2026-04-21","weight":164.2,"bodyFat":26.7},{"id":"1776823652200","date":"2026-04-22","weight":163.2,"bodyFat":26.5},{"id":"1776905636306","date":"2026-04-23","weight":162.8,"bodyFat":26.1},{"id":"1776993379183","date":"2026-04-24","weight":162.1,"bodyFat":25.8},{"id":"1777250026138","date":"2026-04-25","weight":161.2,"bodyFat":25.9},{"id":"1777249998566","date":"2026-04-27","weight":162,"bodyFat":25.6},{"id":"1777345516080","date":"2026-04-28","weight":161.5,"bodyFat":25.8},{"id":"1777425425906","date":"2026-04-29","weight":161.5,"bodyFat":25.8},{"id":"1777509621252","date":"2026-04-30","weight":160.3,"bodyFat":25.8},{"id":"1778027705980","date":"2026-05-01","weight":159.2,"bodyFat":26.1},{"id":"1778027716517","date":"2026-05-06","weight":159.8,"bodyFat":26.1},{"id":"1778115671373","date":"2026-05-07","weight":160,"bodyFat":25.8},{"id":"1778203996160","date":"2026-05-08","weight":159.8,"bodyFat":25.6},{"id":"1778289666465","date":"2026-05-09","weight":159,"bodyFat":25.5},{"id":"1778551675780","date":"2026-05-10","weight":158.2,"bodyFat":25},{"id":"1778551691420","date":"2026-05-11","weight":158.6,"bodyFat":25.1},{"id":"1778551701425","date":"2026-05-12","weight":157.2,"bodyFat":24.9},{"id":"1778635252495","date":"2026-05-13","weight":157,"bodyFat":25},{"id":"1778720507400","date":"2026-05-14","weight":156.2,"bodyFat":25},{"id":"1779068948270","date":"2026-05-15","weight":156.2,"bodyFat":24.9},{"id":"1779068958593","date":"2026-05-18","weight":155.5,"bodyFat":24.8},{"id":"1779169808353","date":"2026-05-19","weight":155.7,"bodyFat":24.6},{"id":"1779326528841","date":"2026-05-20","weight":156.3,"bodyFat":24.2},{"id":"1779326488974","date":"2026-05-21","weight":156.3,"bodyFat":23.9},{"id":"1779431454676","date":"2026-05-22","weight":155.3,"bodyFat":23.8},{"id":"1779669814874","date":"2026-05-23","weight":154.6,"bodyFat":23.6},{"id":"1779669824753","date":"2026-05-25","weight":154.7,"bodyFat":23.9},{"id":"1779756703979","date":"2026-05-26","weight":155,"bodyFat":23.9},{"id":"1779843335165","date":"2026-05-27","weight":153.9,"bodyFat":23.6},{"id":"1780017674853","date":"2026-05-29","weight":153,"bodyFat":24.1},{"id":"1780275191920","date":"2026-05-30","weight":153.2,"bodyFat":24.1},{"id":"1780275282439","date":"2026-06-01","weight":155,"bodyFat":23.9},{"id":"1780454339265","date":"2026-06-02","weight":154.8,"bodyFat":23.9},{"id":"1780454346774","date":"2026-06-03","weight":153.3,"bodyFat":23.7},{"id":"1780539023898","date":"2026-06-04","weight":152.8,"bodyFat":23.8},{"id":"1780625125066","date":"2026-06-05","weight":152.6,"bodyFat":23.9},{"id":"1780879925699","date":"2026-06-06","weight":152.3,"bodyFat":23.7},{"id":"1780879932482","date":"2026-06-08","weight":151.4,"bodyFat":23.7},{"id":"1781057743462","date":"2026-06-09","weight":151.4,"bodyFat":23.7},{"id":"1781057752945","date":"2026-06-10","weight":151.5,"bodyFat":23.7},{"id":"1781484102447","date":"2026-06-11","weight":151.8,"bodyFat":23.4},{"id":"1781484114467","date":"2026-06-12","weight":151.6,"bodyFat":23.1},{"id":"1781484125589","date":"2026-06-13","weight":150.6,"bodyFat":22.9},{"id":"1781484133002","date":"2026-06-15","weight":150.6,"bodyFat":23.3},{"id":"1781743942532","date":"2026-06-16","weight":150.2,"bodyFat":23.1},{"id":"1781743952421","date":"2026-06-17","weight":149.7,"bodyFat":23},{"id":"1781743959639","date":"2026-06-18","weight":149.3,"bodyFat":23},{"id":"1782089749084","date":"2026-06-22","weight":150.3,"bodyFat":23.4},{"id":"1782358188719","date":"2026-06-23","weight":149.1,"bodyFat":22.9},{"id":"1782358197900","date":"2026-06-24","weight":150,"bodyFat":23.3},{"id":"1782358204557","date":"2026-06-25","weight":150.9,"bodyFat":22.9},{"id":"1782789014520","date":"2026-06-26","weight":150.3,"bodyFat":23},{"id":"1782789023933","date":"2026-06-27","weight":150.6,"bodyFat":22.6},{"id":"1782789045496","date":"2026-06-29","weight":149.4,"bodyFat":22.6},{"id":"1782789060402","date":"2026-06-30","weight":148.4,"bodyFat":22.7},{"id":"1783299423298","date":"2026-07-01","weight":149.4,"bodyFat":23},{"id":"1783299434852","date":"2026-07-02","weight":150.1,"bodyFat":22.8},{"id":"1783299447122","date":"2026-07-03","weight":148.9,"bodyFat":22.3},{"id":"1783299458745","date":"2026-07-06","weight":148.5,"bodyFat":22.6},{"id":"1783925456110","date":"2026-07-07","weight":148,"bodyFat":22.6},{"id":"1783925472417","date":"2026-07-08","weight":147.4,"bodyFat":22.4},{"id":"1783925482519","date":"2026-07-09","weight":148.3,"bodyFat":22.6},{"id":"1783925492109","date":"2026-07-10","weight":147.6,"bodyFat":22.6},{"id":"1783925500384","date":"2026-07-13","weight":147,"bodyFat":22.6},{"id":"1784625584787","date":"2026-07-14","weight":147.2,"bodyFat":22.8},{"id":"1784625634781","date":"2026-07-15","weight":146.5,"bodyFat":22.7},{"id":"1784625644373","date":"2026-07-16","weight":145.9,"bodyFat":22.5},{"id":"1784625660336","date":"2026-07-17","weight":147.3,"bodyFat":22.5},{"id":"1784625673438","date":"2026-07-20","weight":148,"bodyFat":22.7},{"id":"1784625680977","date":"2026-07-21","weight":146.9,"bodyFat":22.1},{"id":"1784769140253","date":"2026-07-22","weight":146.4,"bodyFat":22},{"id":"1784769146631","date":"2026-07-23","weight":146.2,"bodyFat":22},{"id":"1785303355638","date":"2026-07-24","weight":147.1,"bodyFat":22},{"id":"1785303367271","date":"2026-07-27","weight":147.1,"bodyFat":22},{"id":"1785303378316","date":"2026-07-28","weight":146.2,"bodyFat":22.2},{"id":"1785303386921","date":"2026-07-29","weight":147.4,"bodyFat":22.2},{"id":"1786324997081","date":"2026-07-30","weight":148.8,"bodyFat":22.4},{"id":"1786325011158","date":"2026-07-31","weight":147,"bodyFat":21.7},{"id":"1786325035224","date":"2026-08-03","weight":149.4,"bodyFat":22.3},{"id":"1786325050832","date":"2026-08-04","weight":147,"bodyFat":21.9},{"id":"1786325099236","date":"2026-08-05","weight":147.1,"bodyFat":22.3},{"id":"1786325112056","date":"2026-08-06","weight":147.5,"bodyFat":22.2},{"id":"1786325121452","date":"2026-08-07","weight":147.1,"bodyFat":22},{"id":"1786325128747","date":"2026-08-10","weight":149.1,"bodyFat":22.5},{"id":"1786933786360","date":"2026-08-12","weight":147,"bodyFat":23},{"id":"1786933816107","date":"2026-08-13","weight":148.4,"bodyFat":23},{"id":"1786933824560","date":"2026-08-17","weight":148.6,"bodyFat":22.8}],"ta":[{"id":"1780022634917","date":"2026-03-06","weight":124.9,"bodyFat":null},{"id":"1780022651479","date":"2026-03-23","weight":121.5,"bodyFat":null},{"id":"1780022662345","date":"2026-04-08","weight":121.2,"bodyFat":null},{"id":"1780022671940","date":"2026-04-09","weight":120.9,"bodyFat":null},{"id":"1780022680222","date":"2026-04-10","weight":120.6,"bodyFat":null},{"id":"1780022692661","date":"2026-04-21","weight":119.8,"bodyFat":null},{"id":"1780022704922","date":"2026-04-22","weight":118.9,"bodyFat":33},{"id":"1780022715497","date":"2026-04-23","weight":118,"bodyFat":32.2},{"id":"1780022726529","date":"2026-04-24","weight":117.9,"bodyFat":31.9},{"id":"1780022737615","date":"2026-04-25","weight":117.6,"bodyFat":32.5},{"id":"1780022750927","date":"2026-04-28","weight":117.8,"bodyFat":32.6},{"id":"1780022761171","date":"2026-04-29","weight":116.8,"bodyFat":32.1},{"id":"1780022772910","date":"2026-04-30","weight":117.1,"bodyFat":null},{"id":"1780022786101","date":"2026-05-01","weight":117,"bodyFat":32.6},{"id":"1780022796970","date":"2026-05-06","weight":115.6,"bodyFat":32.2},{"id":"1780022807668","date":"2026-05-07","weight":116.2,"bodyFat":32.5},{"id":"1780022818226","date":"2026-05-08","weight":116.4,"bodyFat":31.7},{"id":"1780022828764","date":"2026-05-09","weight":115.9,"bodyFat":31.5},{"id":"1780022838554","date":"2026-05-10","weight":115.1,"bodyFat":29.7},{"id":"1780022848824","date":"2026-05-11","weight":115.1,"bodyFat":31.2},{"id":"1780022859464","date":"2026-05-12","weight":115.2,"bodyFat":31.5},{"id":"1780022869711","date":"2026-05-13","weight":115.7,"bodyFat":32.2},{"id":"1780022880125","date":"2026-05-14","weight":115.5,"bodyFat":32},{"id":"1780022888480","date":"2026-05-15","weight":115.9,"bodyFat":31.8},{"id":"1780022898393","date":"2026-05-18","weight":114.9,"bodyFat":31.7},{"id":"1780022909042","date":"2026-05-19","weight":115.3,"bodyFat":31.7},{"id":"1780022917231","date":"2026-05-20","weight":115,"bodyFat":31.3},{"id":"1780022926212","date":"2026-05-21","weight":114.8,"bodyFat":30.9},{"id":"1780022938163","date":"2026-05-22","weight":114.3,"bodyFat":30.8},{"id":"1780022951654","date":"2026-05-23","weight":114,"bodyFat":30.7},{"id":"1780022961077","date":"2026-05-25","weight":113.6,"bodyFat":30.6},{"id":"1780022973072","date":"2026-05-26","weight":114.3,"bodyFat":30.7},{"id":"1780022984902","date":"2026-05-27","weight":113.5,"bodyFat":30.3},{"id":"1780022994607","date":"2026-05-28","weight":114.1,"bodyFat":30.6},{"id":"1780275254997","date":"2026-05-29","weight":113.6,"bodyFat":30.3},{"id":"1780275268471","date":"2026-05-30","weight":114,"bodyFat":30.8},{"id":"1780880008272","date":"2026-06-01","weight":114.7,"bodyFat":30.8},{"id":"1780880047672","date":"2026-06-02","weight":114.3,"bodyFat":30.8},{"id":"1780880059737","date":"2026-06-03","weight":113.8,"bodyFat":30.2},{"id":"1780880066192","date":"2026-06-04","weight":113.3,"bodyFat":30.5},{"id":"1780880092228","date":"2026-06-05","weight":112.7,"bodyFat":30.7},{"id":"1781057860013","date":"2026-06-06","weight":112.1,"bodyFat":30.8},{"id":"1780880099863","date":"2026-06-08","weight":111.5,"bodyFat":30.8},{"id":"1781057788878","date":"2026-06-09","weight":112.2,"bodyFat":31.4},{"id":"1781484242043","date":"2026-06-10","weight":111.8,"bodyFat":31},{"id":"1781484250523","date":"2026-06-11","weight":112.1,"bodyFat":31.1},{"id":"1781484269013","date":"2026-06-12","weight":112,"bodyFat":31.1},{"id":"1781484284300","date":"2026-06-14","weight":111.3,"bodyFat":31.2},{"id":"1781744014983","date":"2026-06-15","weight":110.3,"bodyFat":30.4},{"id":"1781744025197","date":"2026-06-16","weight":110.7,"bodyFat":30.5},{"id":"1781744032411","date":"2026-06-17","weight":110.1,"bodyFat":30},{"id":"1782089838052","date":"2026-06-18","weight":110.6,"bodyFat":30},{"id":"1782358248340","date":"2026-06-22","weight":109.6,"bodyFat":29.6},{"id":"1782358259633","date":"2026-06-23","weight":109.7,"bodyFat":29.7},{"id":"1782358269942","date":"2026-06-24","weight":109.6,"bodyFat":29.6},{"id":"1782789116636","date":"2026-06-25","weight":109.4,"bodyFat":29.3},{"id":"1782789127946","date":"2026-06-26","weight":108.7,"bodyFat":29.3},{"id":"1782789138098","date":"2026-06-28","weight":109.5,"bodyFat":30},{"id":"1782789147641","date":"2026-06-29","weight":109,"bodyFat":29.6},{"id":"1783299521517","date":"2026-07-01","weight":108.9,"bodyFat":29.2},{"id":"1783299533440","date":"2026-07-02","weight":108.6,"bodyFat":29.1},{"id":"1784625773024","date":"2026-07-03","weight":107.9,"bodyFat":28.9},{"id":"1784625794804","date":"2026-07-05","weight":107.4,"bodyFat":29.6},{"id":"1783299555244","date":"2026-07-06","weight":108,"bodyFat":30},{"id":"1784625823398","date":"2026-07-07","weight":108.2,"bodyFat":29.8},{"id":"1784625836131","date":"2026-07-08","weight":107.7,"bodyFat":29.3},{"id":"1784625846836","date":"2026-07-09","weight":107.7,"bodyFat":29.4},{"id":"1784625861221","date":"2026-07-10","weight":107.2,"bodyFat":29},{"id":"1784625875931","date":"2026-07-13","weight":108,"bodyFat":29.2},{"id":"1784625888474","date":"2026-07-14","weight":107.9,"bodyFat":28.9},{"id":"1784625899007","date":"2026-07-15","weight":107.3,"bodyFat":28.8},{"id":"1784625910502","date":"2026-07-16","weight":106.4,"bodyFat":28.9},{"id":"1784625931608","date":"2026-07-17","weight":107.1,"bodyFat":28.7},{"id":"1784625991558","date":"2026-07-19","weight":107.5,"bodyFat":29},{"id":"1784626000751","date":"2026-07-20","weight":106.9,"bodyFat":28.3},{"id":"1784769177488","date":"2026-07-21","weight":106.6,"bodyFat":28.7},{"id":"1784769187178","date":"2026-07-22","weight":105.9,"bodyFat":28.1},{"id":"1786325175584","date":"2026-07-23","weight":105.9,"bodyFat":28.6},{"id":"1786325186712","date":"2026-07-24","weight":106.7,"bodyFat":28.4},{"id":"1786325199286","date":"2026-07-27","weight":107,"bodyFat":29.4},{"id":"1786325215730","date":"2026-07-28","weight":107,"bodyFat":28.8},{"id":"1786325230404","date":"2026-07-29","weight":107.5,"bodyFat":28.9},{"id":"1786325241724","date":"2026-07-30","weight":107,"bodyFat":28.7},{"id":"1786325254414","date":"2026-07-31","weight":106.6,"bodyFat":28.4},{"id":"1786325267872","date":"2026-08-03","weight":106.7,"bodyFat":28.2},{"id":"1786325289347","date":"2026-08-05","weight":106.4,"bodyFat":28.5},{"id":"1786325298696","date":"2026-08-06","weight":106,"bodyFat":28.3},{"id":"1786325275112","date":"2026-08-10","weight":105.6,"bodyFat":28},{"id":"1786933855049","date":"2026-08-11","weight":106.6,"bodyFat":28.4},{"id":"1786933865666","date":"2026-08-12","weight":105.7,"bodyFat":28.1},{"id":"1786933876942","date":"2026-08-13","weight":105.7,"bodyFat":28},{"id":"1786933888487","date":"2026-08-14","weight":106,"bodyFat":28.2}]}};
+
+var state = { user: 'me', y: 2026, m: 6, mode: 'weight' };
+var view = null;
+
+function listAll() {
+  return (SEED.users[state.user] || []).slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+}
+
+function withUnit(v, unit) {
+  return v ? v + '<span class="wstat__u">' + unit + '</span>' : '-';
+}
+
+function fitCanvas() {
+  var cv = document.getElementById('wtChart');
+  var rect = cv.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  cv.width = Math.round(rect.width * dpr);
+  cv.height = Math.round(rect.height * dpr);
+  var ctx = cv.getContext('2d');
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+  return { ctx: ctx, w: rect.width, h: rect.height };
+}
+
+function refresh() {
+  var all = listAll();
+  var month = all.filter(function (r) { var t = W.ymd(r.date); return t && t.y === state.y && t.m === state.m; });
+  var hist = state.mode === 'all';
+  var scope = hist ? all : month;
+
+  var st = W.stat(scope);
+  document.getElementById('monthLabel').textContent = W.monthLabel(state.y, state.m);
+  document.getElementById('monthCount').textContent = month.length ? month.length + ' 条记录' : '还没有记录';
+  var now = new Date();
+  document.getElementById('monthNow').style.display = (state.y === now.getFullYear() && state.m === now.getMonth() + 1) ? '' : 'none';
+
+  document.getElementById('lblMax').textContent = hist ? '历史最高' : '本月最高';
+  document.getElementById('lblMin').textContent = hist ? '历史最低' : '本月最低';
+  document.getElementById('lblSpread').textContent = hist ? '历史波动' : '月波动';
+  document.getElementById('lblMaxF').textContent = hist ? '历史最高体脂' : '本月最高体脂';
+  document.getElementById('lblMinF').textContent = hist ? '历史最低体脂' : '本月最低体脂';
+  document.getElementById('lblSpreadF').textContent = hist ? '历史体脂波动' : '体脂波动';
+
+  document.getElementById('stLatestW').innerHTML = withUnit(st.latestW, '斤');
+  document.getElementById('stMaxW').innerHTML = withUnit(st.maxW, '斤');
+  document.getElementById('stMinW').innerHTML = withUnit(st.minW, '斤');
+  document.getElementById('stSpreadW').innerHTML = withUnit(st.spreadW, '斤');
+  document.getElementById('stLatestF').innerHTML = withUnit(st.latestF, '%');
+  document.getElementById('stMaxF').innerHTML = withUnit(st.maxF, '%');
+  document.getElementById('stMinF').innerHTML = withUnit(st.minF, '%');
+  document.getElementById('stSpreadF').innerHTML = withUnit(st.spreadF, '%');
+
+  /* 记录行（倒序，最高/最低打标） */
+  var top = month.length ? Math.max.apply(null, month.map(function (r) { return r.weight; })) : null;
+  var bot = month.length ? Math.min.apply(null, month.map(function (r) { return r.weight; })) : null;
+  var box = document.getElementById('recList');
+  if (!month.length) {
+    box.innerHTML = '<div class="wempty">本期还没有记录，上面加一条</div>';
+  } else {
+    box.innerHTML = month.slice().reverse().map(function (r) {
+      var t = W.ymd(r.date);
+      var badge = '';
+      if (month.length > 1 && top !== bot) {
+        if (r.weight === top) badge = '<span class="wrec__badge is-hi">最高</span>';
+        else if (r.weight === bot) badge = '<span class="wrec__badge is-lo">最低</span>';
+      }
+      return '<div class="wrec">'
+        + '<div class="wrec__date"><span class="wrec__md">' + t.m + '月' + t.d + '日</span><span class="wrec__wd">' + W.weekday(r.date) + '</span></div>'
+        + '<div class="wrec__w">' + W.fmt1(r.weight) + '<span class="wrec__u">斤</span></div>'
+        + '<div class="wrec__f">' + (r.bodyFat === null ? '-' : W.fmt1(r.bodyFat) + '%') + '</div>'
+        + badge
+        + '<div class="wrec__pen"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8C9A94" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4l10-10-4-4L4 16v4z"/></svg></div>'
+        + '</div>';
+    }).join('');
+  }
+
+  /* 智能分析（不足 3 条不出） */
+  var ana = W.trend(month);
+  var card = document.getElementById('anaCard');
+  if (!ana) {
+    card.style.display = 'none';
+  } else {
+    card.style.display = '';
+    document.getElementById('anaSide').textContent = '按本月 ' + ana.count + ' 条';
+    document.getElementById('anaLead').innerHTML = '本月体重趋势<span class="ana__tag is-' + ana.tone + '">' + ana.text + '</span>，平均每周变化 ' + ana.weeklyAbs + ' 斤。';
+    document.getElementById('anaNotes').innerHTML = ana.notes.map(function (n) { return '<div class="ana__p">' + n + '</div>'; }).join('');
+    document.getElementById('anaFoot').textContent = '跨度 ' + ana.days + ' 天，按首尾两条记录折算，仅供参考';
+  }
+
+  /* 图例 */
+  var showW = state.mode !== 'fat';
+  var showF = state.mode === 'fat' || state.mode === 'all';
+  var lg = '';
+  if (showW) lg += '<div class="wlegend__it"><div class="wlegend__dot is-w"></div><span>体重（斤）</span></div>';
+  if (showF) lg += '<div class="wlegend__it"><div class="wlegend__dot is-f"></div><span>体脂（%）</span></div>';
+  lg += '<span class="wlegend__hint">' + (hist ? '含全部历史' : '只看本月') + '</span>';
+  document.getElementById('legend').innerHTML = lg;
+  document.getElementById('allHint').style.display = hist ? '' : 'none';
+
+  /* 画图 */
+  view = fitCanvas();
+  CH.drawTrend(view.ctx, { w: view.w, h: view.h, list: hist ? all : month, showW: showW, showF: showF });
+
+  document.getElementById('phState').textContent =
+    (state.user === 'me' ? '我' : 'TA') + ' · ' + W.monthLabel(state.y, state.m) + ' · ' + st.count + ' 条';
+}
+
+/* ---- 交互 ---- */
+Array.prototype.forEach.call(document.querySelectorAll('.wseg__it[data-user]'), function (el) {
+  el.addEventListener('click', function () {
+    state.user = el.getAttribute('data-user');
+    Array.prototype.forEach.call(document.querySelectorAll('.wseg__it[data-user]'), function (o) { o.classList.toggle('is-on', o === el); });
+    refresh();
+  });
+});
+
+Array.prototype.forEach.call(document.querySelectorAll('.wseg__it[data-mode]'), function (el) {
+  el.addEventListener('click', function () {
+    state.mode = el.getAttribute('data-mode');
+    Array.prototype.forEach.call(document.querySelectorAll('.wseg__it[data-mode]'), function (o) { o.classList.toggle('is-on', o === el); });
+    refresh();
+  });
+});
+
+Array.prototype.forEach.call(document.querySelectorAll('.wmonth__btn'), function (el) {
+  el.addEventListener('click', function () {
+    var d = parseInt(el.getAttribute('data-nav'), 10);
+    state.m += d;
+    if (state.m < 1) { state.m = 12; state.y -= 1; }
+    if (state.m > 12) { state.m = 1; state.y += 1; }
+    refresh();
+  });
+});
+
+window.addEventListener('resize', refresh);
+refresh();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="L&amp;L app icon · paper">
+  <title>L&amp;L 小程序图标 · 纸白底（主方案）</title>
+  <desc>双 L 对望共享基线，青绿→雪峰蓝渐变笔画，纸白底。上传微信请用对应 fullbleed 满幅直角版。</desc>
+  <defs>
+    <linearGradient id="g" x1="110" y1="130" x2="402" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E6B5A"/>
+      <stop offset="1" stop-color="#2E6E95"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" rx="112" fill="#F7F5EF"/>
+  <g fill="none" stroke="url(#g)" stroke-width="52" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 132 150 V 380 H 256"/>
+    <path d="M 380 198 V 380 H 256"/>
+  </g>
+</svg>

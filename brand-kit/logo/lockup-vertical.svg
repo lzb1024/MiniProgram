@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 460" width="360" height="460" role="img" aria-label="L&amp;L vertical lockup">
+  <title>L&amp;L 标准组合 · 竖版</title>
+  <desc>图标在上、标准字在下，用于方形或窄容器。标准字与图标等宽居中对齐。</desc>
+  <defs>
+    <linearGradient id="vlock-grad" x1="84" y1="40" x2="276" y2="232" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1E6B5A"/>
+      <stop offset="1" stop-color="#2E6E95"/>
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(84,32)">
+    <rect x="0" y="0" width="192" height="192" rx="42" fill="#F7F5EF"/>
+    <g transform="scale(0.375)" fill="none" stroke="url(#vlock-grad)"
+       stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 138 132 V 378 H 386" stroke-width="74"/>
+      <path d="M 228 196 V 300 H 340" stroke-width="50"/>
+    </g>
+  </g>
+
+  <text x="180" y="368" text-anchor="middle"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="86" font-weight="600" letter-spacing="-1.5"
+        fill="#1E6B5A">L<tspan font-size="60" fill="#8C9A94" dx="2">&#38;</tspan><tspan dx="2">L</tspan></text>
+
+  <text x="180" y="404" text-anchor="middle"
+        font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        font-size="15" font-weight="500" letter-spacing="6"
+        fill="#8C9A94">TRAVEL COMPANIONS</text>
+</svg>
